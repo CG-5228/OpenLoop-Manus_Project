@@ -5,7 +5,7 @@ Update this board at each integration checkpoint. Member 5 owns the release view
 | Area | Owner | Branch | Current state | PR / commit | Integration dependency | Next release gate |
 |---|---:|---|---|---|---|---|
 | Shared foundation and types | 5 | `main` | **Merged and build-verified** | [PR #2](https://github.com/CG-5228/OpenLoop-Manus_Project/pull/2) · `787ae02` | None | Preserve a green `npm run check` on every merge |
-| Dashboard & UI/UX | 1 | `feature/frontend` | **PR open — UI complete on demo adapter**; `npm run check` green; 19/19 interaction checks | `feature/frontend` | Member 4 `useCommitments()` → live adapter; Member 2 importer → `/import` slot (see `docs/frontend-integration.md`) | Swap demo adapter for live data; mount importer |
+| Dashboard & UI/UX | 1 | `feature/frontend` | Awaiting feature branch | — | Shared types + hook contract | Renders real commitments and all UI states |
 | Conversation processing | 2 | `feature/conversation` | Draft PR is structurally compatible; combined lint fixes requested | [PR #1](https://github.com/CG-5228/OpenLoop-Manus_Project/pull/1) | Shared types are now available; PR must pass shared checks | `npm run check` + module check pass on merged result |
 | AI extraction | 3 | `feature/ai-extraction` | Awaiting endpoint implementation; sandbox provider probe passed | — | Production environment credential remains unverified | Real endpoint handles sample honestly |
 | Commitment management | 4 | `feature/commitments` | Awaiting feature branch | — | Shared types | Actions persist through refresh |
