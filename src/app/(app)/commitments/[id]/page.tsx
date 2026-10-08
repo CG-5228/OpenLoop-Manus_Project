@@ -4,7 +4,7 @@ import { CommitmentDetail } from "@/components/commitment/commitment-detail";
 
 export const metadata: Metadata = { title: "Commitment" };
 
-export default function CommitmentPage({ params }: PageProps<"/commitments/[id]">) {
+export default function CommitmentPage({ params }: { params: Promise<{ id: string }> }) {
   return (
     <Suspense
       fallback={
