@@ -12,6 +12,7 @@ import {
 import { Logo, LogoMark } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { ProductPreview } from "@/components/landing/product-preview";
+import { getExtractionMode } from "@/lib/ai/demo-extractor";
 import { ROUTES } from "@/lib/ui/routes";
 
 const STEPS = [
@@ -59,6 +60,8 @@ const FEATURES = [
 ];
 
 export default function LandingPage() {
+  // Server-side: the footer must not claim rule-based extraction while AI is running.
+  const extractionMode = getExtractionMode();
   return (
     <div className="relative overflow-x-clip">
       {/* Nav */}
@@ -225,7 +228,12 @@ export default function LandingPage() {
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-[1160px] flex-col items-center justify-between gap-4 px-5 py-8 text-[13px] text-ink-3 sm:flex-row sm:px-8">
           <Logo className="opacity-80" />
-          <p className="text-center">This demo uses rule-based extraction in place of AI and saves data in your browser. OpenLoop never sends messages automatically.</p>
+          <p className="text-center">
+            {extractionMode === "ai"
+              ? "Conversations are analysed by AI only when you choose, and results are saved in your browser."
+              : "This demo uses rule-based extraction in place of AI and saves data in your browser."}{" "}
+            OpenLoop never sends messages automatically.
+          </p>
           <p>© 2026 OpenLoop</p>
         </div>
       </footer>
