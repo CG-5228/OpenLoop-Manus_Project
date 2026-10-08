@@ -175,3 +175,31 @@ test("the sample carries only the date and identity explicitly stated in the sha
   assert.equal(SAMPLE_REFERENCE_DATE, "2026-10-08");
   assert.equal(SAMPLE_CURRENT_USER, "Me");
 });
+
+test("the empty importer can prerender without calling crypto.randomUUID", () => {
+  const original = crypto.randomUUID;
+  crypto.randomUUID = () => { throw new Error("Do not generate random IDs during prerender"); };
+  try {
+    assert.doesNotThrow(() => renderToStaticMarkup(React.createElement(ConversationImporter, { onImport: () => {} })));
+  } finally {
+    crypto.randomUUID = original;
+  }
+});
+
+test("the importer accepts parser-only action copy without claiming an AI request", () => {
+  const html = renderToStaticMarkup(React.createElement(ConversationImporter, {
+    onImport: () => {}, submitLabel: "Preview parsed JSON", inputDisclosure: "Parser-only: no AI request.",
+  }));
+  assert.match(html, /Preview parsed JSON/);
+  assert.match(html, /Parser-only: no AI request/);
+  assert.doesNotMatch(html, /Send messages for analysis/);
+});
+
+test("the playground declares parser-only behaviour and leaves submission empty on first render", () => {
+  const { ConversationImportPlayground } = load("./src/components/import/ConversationImportPlayground.js");
+  const html = renderToStaticMarkup(React.createElement(ConversationImportPlayground));
+  assert.match(html, /Parser-only test/);
+  assert.match(html, /does not detect promises, run AI, save conversations/);
+  assert.match(html, /Preview parsed JSON/);
+  assert.doesNotMatch(html, /data-testid="parsed-output"/);
+});

@@ -3,6 +3,10 @@
     {
       "path": "/",
       "title": "OpenLoop"
+    },
+    {
+      "path": "/dev/conversation",
+      "title": "Conversation parser test"
     }
   ]
 }

@@ -20,3 +20,9 @@ These checks establish implementation/build compatibility, not browser acceptanc
 - [ ] Members 1/4/5 connect returned commitments to persistence/dashboard and verify the full sample/custom import journey in a browser, including phone layout.
 - [ ] Member 5 coordinates review/merge and verifies the deployed flow.
 - [ ] Connect and test a real OCR implementation if the P0 text-to-AI flow is working. PDF and richer chat-format parsing remain optional.
+
+## Interactive parser test preview
+
+- [x] Provide `/dev/conversation` with the actual importer and structured JSON output, clearly labelled parser-only with no AI/network submission of input.
+- [x] Allow sample, pasted text and `.txt` uploads to be tested without modifying the dashboard or other members' features.
+- [x] Verify the preview via local/public HTTP and synthetic browser input, while keeping real OCR and AI extraction explicitly unavailable.

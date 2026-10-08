@@ -23,7 +23,7 @@ export interface UseConversationImportOptions {
 export function useConversationImport({ onImport, extractImageText, timestampOffset }: UseConversationImportOptions) {
   const [text, setRawText] = useState("");
   const [source, setSource] = useState<ImportSource>("paste");
-  const [conversationId, setConversationId] = useState(() => crypto.randomUUID());
+  const [conversationId, setConversationId] = useState("");
   const [currentUserLabel, setCurrentUserLabel] = useState("");
   const [referenceDate, setReferenceDate] = useState("");
   const [phase, setPhase] = useState<"idle" | "reading" | "submitting">("idle");
@@ -48,6 +48,7 @@ export function useConversationImport({ onImport, extractImageText, timestampOff
   const canSubmit = !busy && !preview.error && preview.messages.length > 0 && senders.includes(currentUserLabel.trim());
 
   function setText(value: string) {
+    if (!conversationId) setConversationId(crypto.randomUUID());
     setRawText(value);
     setError(null);
     setNotice(null);

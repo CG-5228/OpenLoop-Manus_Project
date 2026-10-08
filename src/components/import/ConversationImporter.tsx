@@ -9,10 +9,17 @@ import { useConversationImport, type UseConversationImportOptions } from "./useC
 
 export interface ConversationImporterProps extends UseConversationImportOptions {
   className?: string;
+  submitLabel?: string;
+  inputDisclosure?: string;
 }
 
 /** Member 1 mounts this; Member 3 owns the analysis called by onImport. */
-export function ConversationImporter({ className = "", ...options }: ConversationImporterProps) {
+export function ConversationImporter({
+  className = "",
+  submitLabel = "Send messages for analysis",
+  inputDisclosure = "Use fictional data for the demo. Your text will be passed to the application's AI analysis when you submit; do not include sensitive details.",
+  ...options
+}: ConversationImporterProps) {
   const state = useConversationImport(options);
   return (
     <form
@@ -24,7 +31,7 @@ export function ConversationImporter({ className = "", ...options }: Conversatio
       <header className="space-y-2">
         <h2 className="text-xl font-semibold text-slate-900">Import a conversation</h2>
         <p className="text-sm text-slate-600">Paste a chat, review the messages, and identify your sender name.</p>
-        <p className="text-xs text-slate-500">Use fictional data for the demo. Your text will be passed to the application&apos;s AI analysis when you submit; do not include sensitive details.</p>
+        <p className="text-xs text-slate-500">{inputDisclosure}</p>
       </header>
       <div className="flex flex-wrap gap-3">
         <button type="button" onClick={state.loadSample} disabled={state.busy} className="rounded-md border border-slate-300 px-3 py-2 text-sm disabled:opacity-60">Try sample conversation</button>
@@ -43,7 +50,7 @@ export function ConversationImporter({ className = "", ...options }: Conversatio
         {state.phase === "reading" ? (state.notice ?? "Reading your file…") : state.notice}
       </div>
       <button type="submit" disabled={!state.canSubmit} className="rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white disabled:cursor-not-allowed disabled:opacity-50">
-        {state.phase === "submitting" ? "Passing messages to the application…" : "Send messages for analysis"}
+        {state.phase === "submitting" ? "Passing messages to the application…" : submitLabel}
       </button>
     </form>
   );

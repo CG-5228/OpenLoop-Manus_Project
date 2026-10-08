@@ -118,3 +118,13 @@ Tests cover pure parsing, timestamp handling, upload validation, UTF-8 reading, 
 ## Current handoffs
 
 See [Member 2 progress](./MEMBER_2_PROGRESS.md) for verified status and remaining work, and [Member 3 extraction handoff](./MEMBER_3_HANDOFF.md) for the exact payload, shared types, synthetic request and AI endpoint requirements.
+
+## Interactive parser playground
+
+Open `/dev/conversation` on the feature branch's running Next.js app. Click **Try sample conversation**, then **Preview parsed JSON** to inspect the actual `Message[]`, current-user label and optional date. For custom input, use `Me: message` / `James: message`, choose the matching current-user label and preview again. A fictional upload file is available at `tests/conversation/sample-conversation.txt`.
+
+This test page uses the real importer but only displays a payload in browser memory. **It does not call AI, detect commitments, store messages or send message input to a server.** Screenshot OCR remains unavailable. The optional known-offset selector is explicit; it does not infer the timezone.
+
+Browser checks verified five-message sample submission, two-message custom paste, `.txt` import with Unicode/source preserved, unsupported-PDF rejection and explicit timestamp-offset conversion. The initial mount check exposed `crypto.randomUUID()` in the hook's server prerender; ID initialization was deferred to user input, with a failing-then-passing regression test. Product button/disclosure defaults are unchanged; the playground overrides only their visible copy.
+
+Temporary preview for this task: https://3000-irmxsi7nd463jgidio6kb-2835a6f1.us4.manus.computer/dev/conversation . This is sandbox access, not the team's deployed product URL. Run locally using `npm run dev` and visit `http://localhost:3000/dev/conversation`.
