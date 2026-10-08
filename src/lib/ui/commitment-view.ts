@@ -36,32 +36,40 @@ export const STATUS_LABEL: Record<DisplayStatus, string> = {
   dismissed: "Dismissed",
 };
 
-const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+export function isOpen(c: Commitment) {
+  return c.status === "pending";
+}
 
-/** True for date-only deadlines such as "2026-10-09" (no time of day was stated). */
+// ── Deadline parsing ───────────────────────────────────────────────────────
+
+const DATE_ONLY = /^(\d{4})-(\d{2})-(\d{2})$/;
+
+/** True for date-only deadlines such as "2026-10-08" (Member 3 returns these when no time is stated). */
 export function isDateOnly(iso: string) {
   return DATE_ONLY.test(iso);
 }
 
 /**
- * Parse a deadline. Date-only values mean "by the end of that local day", so a
- * promise "for tonight" is not shown as overdue from midnight UTC.
+ * Parses a deadline for display. A date-only value is a calendar date in the
+ * user's local time zone. `new Date("2026-10-08")` would read it as UTC midnight,
+ * which shows the wrong time and can shift it to the previous day west of UTC.
  */
 export function parseDue(iso: string): Date {
-  if (isDateOnly(iso)) {
-    const [y, m, d] = iso.split("-").map(Number);
-    return new Date(y, m - 1, d, 23, 59, 59, 999);
-  }
+  const m = DATE_ONLY.exec(iso);
+  if (m) return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
   return new Date(iso);
 }
 
-export function isOpen(c: Commitment) {
-  return c.status === "pending";
+/** The moment a deadline is missed: the end of the local day for date-only deadlines. */
+export function dueInstant(iso: string): number {
+  const d = parseDue(iso);
+  if (!isDateOnly(iso)) return d.getTime();
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1).getTime() - 1;
 }
 
 export function isOverdue(c: Commitment, now: Date) {
   if (c.status !== "pending" || !c.dueAt) return false;
-  return parseDue(c.dueAt).getTime() < now.getTime();
+  return dueInstant(c.dueAt) < now.getTime();
 }
 
 /** Reasons a pending commitment needs the user's attention. */
@@ -150,10 +158,11 @@ function hasTime(d: Date) {
 
 export function formatDue(c: Commitment, now: Date): DueInfo {
   if (!c.dueAt) return { label: "No deadline", relative: null, tone: "none" };
-  const dateOnly = isDateOnly(c.dueAt);
   const d = parseDue(c.dueAt);
   if (Number.isNaN(d.getTime()))
     return { label: "Invalid date", relative: null, tone: "none" };
+  const dateOnly = isDateOnly(c.dueAt);
+  const due = dueInstant(c.dueAt);
 
   const time = !dateOnly && hasTime(d) ? `, ${format(d, "HH:mm")}` : "";
   let label: string;
@@ -165,8 +174,8 @@ export function formatDue(c: Commitment, now: Date): DueInfo {
   if (c.status !== "pending") return { label, relative: null, tone: "done" };
 
   const days = differenceInCalendarDays(d, now);
-  if (d.getTime() < now.getTime()) {
-    const mins = differenceInMinutes(now, d);
+  if (due < now.getTime()) {
+    const mins = differenceInMinutes(now, due);
     const relative =
       days === 0
         ? mins < 60
@@ -176,13 +185,13 @@ export function formatDue(c: Commitment, now: Date): DueInfo {
     return { label, relative, tone: "overdue" };
   }
   if (days <= 1) {
-    const mins = differenceInMinutes(d, now);
+    const mins = differenceInMinutes(due, now);
     const relative =
       days === 0 && !dateOnly
         ? mins < 60
           ? `in ${Math.max(mins, 1)} min`
           : `in ${Math.floor(mins / 60)} h`
-        : null; // label already says "Tomorrow"
+        : null; // label already says "Today" (date-only) or "Tomorrow"
     return { label, relative, tone: "soon" };
   }
   return { label, relative: `in ${days} days`, tone: "later" };
@@ -303,7 +312,7 @@ export function sortCommitments(list: Commitment[], sort: SortKey) {
     if (!a.dueAt && !b.dueAt) return a.title.localeCompare(b.title);
     if (!a.dueAt) return 1;
     if (!b.dueAt) return -1;
-    return parseDue(a.dueAt).getTime() - parseDue(b.dueAt).getTime();
+    return dueInstant(a.dueAt) - dueInstant(b.dueAt);
   });
 }
 

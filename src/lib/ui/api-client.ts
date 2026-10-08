@@ -9,6 +9,7 @@
  * Failures surface as `ApiError` with a user-facing message. Callers must show
  * the error — never substitute fixture data for a failed live request.
  */
+import type { FollowUpDraft } from "@/lib/ui/dashboard-data-api";
 import type { Commitment, Message } from "@/types/openloop";
 
 export class ApiError extends Error {
@@ -90,9 +91,15 @@ export async function requestFollowUp(
   tone: "casual" | "polite" | "firm" = "casual",
   signal?: AbortSignal,
 ) {
-  const data = await postJson<{ message?: unknown }>("/api/follow-up", { commitment, tone }, signal);
+  // allowTemplate: when AI is unavailable (e.g. no key in a demo deployment), the
+  // server returns a labelled template draft instead of failing.
+  const data = await postJson<{ message?: unknown; source?: unknown }>(
+    "/api/follow-up",
+    { commitment, tone, allowTemplate: true },
+    signal,
+  );
   if (typeof data.message !== "string" || !data.message.trim()) {
     throw new ApiError("The follow-up service returned an empty draft.", 502);
   }
-  return data.message;
+  return { message: data.message, source: data.source === "ai" ? "ai" : "template" } satisfies FollowUpDraft;
 }

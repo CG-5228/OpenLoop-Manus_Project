@@ -247,3 +247,139 @@ test("quick parser renders whole-block input, optional author and honest output 
     crypto.randomUUID = original;
   }
 });
+
+test("live commitment test discloses provider processing and never analyses on initial render", () => {
+  const { CommitmentTestPlayground } = load("./src/components/import/CommitmentTestPlayground.js");
+  const html = renderToStaticMarkup(React.createElement(CommitmentTestPlayground));
+  assert.match(html, /Real AI processing/);
+  assert.match(html, /configured AI provider/);
+  assert.match(html, /Find commitments/);
+  assert.match(html, /does not save conversations/);
+  assert.doesNotMatch(html, /data-testid="commitment-output"/);
+});
+
+test("client commitment response guard rejects malformed outputs", () => {
+  const { isCommitmentPreview } = load("./src/lib/conversation/requestCommitments.js");
+  assert.equal(isCommitmentPreview(null), false);
+  assert.equal(isCommitmentPreview({ title: "Fake" }), false);
+  assert.equal(isCommitmentPreview({ id: "c", title: "Send report", promisor: "James", beneficiary: "Me", direction: "they_owe", dueAt: null, evidenceQuote: "I'll send you the report", sourceMessageId: "m", confidence: "high", status: "pending" }), true);
+});
+
+test("email lists import JSON and separated text blocks with stable metadata and Unicode", () => {
+  const { parseEmailList, SAMPLE_EMAIL_LIST, EMAIL_BLOCK_EXAMPLE } = load("./src/lib/conversation/emailList.js");
+  assert.deepEqual(parseEmailList(JSON.stringify(SAMPLE_EMAIL_LIST)), SAMPLE_EMAIL_LIST);
+  const blocks = parseEmailList(EMAIL_BLOCK_EXAMPLE.replace(/\n/g, "\r\n"));
+  assert.equal(blocks.length, 2);
+  assert.equal(blocks[0].from, "James");
+  assert.equal(blocks[0].sentAt, "2026-10-08T10:00:00Z");
+  assert.equal(blocks[1].sentAt, null);
+  assert.equal(parseEmailList('[{"from":"Éva","to":"Me; Sarah","body":"I’ll send €20 🙂"}]')[0].body, "I’ll send €20 🙂");
+});
+
+test("email import rejects malformed lists, duplicate IDs, invalid dates and size overflow", () => {
+  const { parseEmailList, validateEmailList, MAX_EMAIL_LIST_BYTES, MAX_EMAILS } = load("./src/lib/conversation/emailList.js");
+  for (const text of ["", "[broken", "No From header", "From: James\nSubject: Empty\n\n"]) assert.throws(() => parseEmailList(text));
+  const valid = { id: "one", from: "James", body: "Hello" };
+  assert.throws(() => validateEmailList([valid, valid]), /Duplicate/);
+  assert.throws(() => validateEmailList(Array.from({ length: MAX_EMAILS + 1 }, (_, i) => ({ ...valid, id: `${i}` }))), /at most 100/);
+  assert.throws(() => validateEmailList([{ ...valid, sentAt: "2026-02-30T10:00:00Z" }]), /invalid date/);
+  assert.throws(() => validateEmailList([{ ...valid, sentAt: "2026-10-08T25:00:00Z" }]), /invalid date/);
+  assert.throws(() => validateEmailList([{ ...valid, sentAt: "2026-10-08" }]), /known timezone/);
+  assert.throws(() => validateEmailList([{ ...valid, body: "x".repeat(100_001) }]), /100000/);
+  assert.throws(() => parseEmailList("x".repeat(MAX_EMAIL_LIST_BYTES + 1)), /1 MiB/);
+});
+
+test("email search, sender and inclusive date filters compose without inferring unknown dates", () => {
+  const { filterEmailList, SAMPLE_EMAIL_LIST } = load("./src/lib/conversation/emailList.js");
+  assert.deepEqual(filterEmailList(SAMPLE_EMAIL_LIST, { query: "REVISED" }).map(e => e.id), ["report"]);
+  assert.deepEqual(filterEmailList(SAMPLE_EMAIL_LIST, { sender: "Me", query: "Sarah" }).map(e => e.id), ["slides"]);
+  assert.equal(filterEmailList(SAMPLE_EMAIL_LIST, { fromDate: "2026-10-08", toDate: "2026-10-08" }).length, 3);
+  assert.equal(filterEmailList(SAMPLE_EMAIL_LIST, { fromDate: "2026-10-09" }).length, 0);
+});
+
+test("manual email scope excludes hidden and unchecked emails even if selected overall", () => {
+  const { selectedVisibleEmails, SAMPLE_EMAIL_LIST } = load("./src/lib/conversation/emailList.js");
+  const selected = new Set(["report", "newsletter", "slides"]);
+  assert.deepEqual(selectedVisibleEmails(SAMPLE_EMAIL_LIST, { sender: "James" }, selected).map(e => e.id), ["report"]);
+  assert.deepEqual(selectedVisibleEmails(SAMPLE_EMAIL_LIST, {}, new Set()).map(e => e.id), []);
+});
+
+test("email conversion and relevance mapping keep exact source IDs/evidence", () => {
+  const { emailToMessage, emailIdsWithCommitments, SAMPLE_EMAIL_LIST } = load("./src/lib/conversation/emailList.js");
+  const message = emailToMessage(SAMPLE_EMAIL_LIST[0]);
+  assert.equal(message.id, "report");
+  assert.equal(message.sender, "James");
+  assert.match(message.text, /Subject: Report for review\nTo: Me/);
+  assert.ok(message.text.includes(SAMPLE_EMAIL_LIST[0].body));
+  assert.deepEqual([...emailIdsWithCommitments(SAMPLE_EMAIL_LIST, [{ sourceMessageId: "report", evidenceQuote: "I'll email you the revised report tomorrow." }])], ["report"]);
+  assert.throws(() => emailIdsWithCommitments(SAMPLE_EMAIL_LIST, [{ sourceMessageId: "missing", evidenceQuote: "Hello" }]), /traced/);
+  assert.throws(() => emailIdsWithCommitments(SAMPLE_EMAIL_LIST, [{ sourceMessageId: "report", evidenceQuote: "Invented quote" }]), /traced/);
+});
+
+test("email analysis sends one independent source per call with at most two active calls", async () => {
+  const { analyseEmailList } = load("./src/lib/conversation/analyseEmailList.js");
+  const { SAMPLE_EMAIL_LIST } = load("./src/lib/conversation/emailList.js");
+  let active = 0, peak = 0;
+  const seen = [], progress = [];
+  const result = await analyseEmailList(SAMPLE_EMAIL_LIST, { currentUserLabel: " Me ", onProgress: n => progress.push(n) }, async payload => {
+    active++; peak = Math.max(peak, active); seen.push(payload);
+    await new Promise(resolve => setTimeout(resolve, 5));
+    active--; return [];
+  });
+  assert.equal(peak, 2);
+  assert.equal(seen.length, 4);
+  assert.ok(seen.every(p => p.messages.length === 1 && p.currentUserLabel === "Me"));
+  assert.ok(result.every(r => r.error === null && r.commitments.length === 0));
+  assert.deepEqual(progress, [1, 2, 3, 4]);
+});
+
+test("email analysis preserves per-email failures and never turns invalid evidence into an irrelevant verdict", async () => {
+  const { analyseEmailList } = load("./src/lib/conversation/analyseEmailList.js");
+  const { SAMPLE_EMAIL_LIST } = load("./src/lib/conversation/emailList.js");
+  const result = await analyseEmailList(SAMPLE_EMAIL_LIST.slice(0, 2), { currentUserLabel: "Me" }, async payload => {
+    if (payload.messages[0].id === "report") throw new Error("Provider unavailable");
+    return [{ sourceMessageId: "report", evidenceQuote: "Wrong source" }];
+  });
+  assert.equal(result[0].error, "Provider unavailable");
+  assert.match(result[1].error, /traced/);
+});
+
+test("email analysis checks bounds/identity and cancellation before sending text", async () => {
+  const { analyseEmailList } = load("./src/lib/conversation/analyseEmailList.js");
+  const { SAMPLE_EMAIL_LIST } = load("./src/lib/conversation/emailList.js");
+  let calls = 0;
+  const request = async () => { calls++; return []; };
+  await assert.rejects(analyseEmailList([], { currentUserLabel: "Me" }, request), /at least one/);
+  await assert.rejects(analyseEmailList(Array(11).fill(SAMPLE_EMAIL_LIST[0]), { currentUserLabel: "Me" }, request), /up to 10/);
+  await assert.rejects(analyseEmailList(SAMPLE_EMAIL_LIST, { currentUserLabel: "" }, request), /own name/);
+  const controller = new AbortController(); controller.abort();
+  await assert.rejects(analyseEmailList(SAMPLE_EMAIL_LIST, { currentUserLabel: "Me", signal: controller.signal }, request));
+  assert.equal(calls, 0);
+});
+
+test("email selection UI discloses AI scope and does not load or analyse an inbox on render", () => {
+  const { EmailSelectionPlayground } = load("./src/components/import/EmailSelectionPlayground.js");
+  const html = renderToStaticMarkup(React.createElement(EmailSelectionPlayground));
+  assert.match(html, /AI-select sends all currently visible emails/);
+  assert.match(html, /No Gmail connection/);
+  assert.match(html, /Try sample email list/);
+  assert.doesNotMatch(html, /data-testid="email-analysis-output"/);
+  assert.doesNotMatch(html, /data-testid="email-report"/);
+});
+
+test("email analysis never treats an empty error as a no-commitments result", async () => {
+  const { analyseEmailList } = load("./src/lib/conversation/analyseEmailList.js");
+  const { SAMPLE_EMAIL_LIST } = load("./src/lib/conversation/emailList.js");
+  const result = await analyseEmailList(SAMPLE_EMAIL_LIST.slice(0, 1), { currentUserLabel: "Me" }, async () => { throw new Error("  "); });
+  assert.ok(result[0].error.trim().length > 0);
+});
+
+test("email relevance independently rejects blank evidence quotes", () => {
+  const { emailIdsWithCommitments, SAMPLE_EMAIL_LIST } = load("./src/lib/conversation/emailList.js");
+  assert.throws(() => emailIdsWithCommitments(SAMPLE_EMAIL_LIST, [{ sourceMessageId: "report", evidenceQuote: "" }]), /traced/);
+});
+
+test("client guard rejects a commitment with empty evidence", () => {
+  const { isCommitmentPreview } = load("./src/lib/conversation/requestCommitments.js");
+  assert.equal(isCommitmentPreview({ id: "c", title: "Send report", promisor: "James", beneficiary: "Me", direction: "they_owe", dueAt: null, evidenceQuote: "", sourceMessageId: "m", confidence: "high", status: "pending" }), false);
+});

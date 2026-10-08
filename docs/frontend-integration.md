@@ -19,7 +19,7 @@ Append `?demo-state=loading`, `?demo-state=empty` or `?demo-state=error` to any 
 
 1. **Import** (`src/components/import-flow/importer-slot.tsx`): OpenLoop's UI on top of Member 2's `useConversationImport` hook (parsing, sample, `.txt` reading, sender list, validation). The user picks which sender is them and can set a reference date.
 2. **Analyse** (`use-import-flow.ts`): posts Member 2's payload to Member 3's `POST /api/commitments/extract`, shows analysing, no-results and error states (with retry), and keeps the pasted text when the user goes back to edit. It never substitutes fixture data.
-3. **Store** (`src/lib/ui/commitment-store.ts`): commitments and their source messages are saved in this browser (`localStorage`, key `openloop:v1`) and synced across tabs. Re-importing the same conversation keeps existing statuses and edited deadlines because IDs are content-based.
+3. **Store**: Member 4's Module D (`src/lib/commitments`, `useCommitments()`) persists commitments and cited messages in the browser and skips duplicates, so re-importing a conversation keeps existing statuses and edited deadlines.
 4. **Track**: the dashboard, cards and details read everything through `useDashboardData()`.
 
 ## Extraction modes
@@ -28,7 +28,9 @@ Append `?demo-state=loading`, `?demo-state=empty` or `?demo-state=error` to any 
 
 ## The one data seam: `useDashboardData()`
 
-Every UI component reads data and triggers actions through `useDashboardData()` (`src/components/providers/dashboard-data-provider.tsx`), whose shape is `DashboardDataApi` (`src/lib/ui/dashboard-data-api.ts`). The live adapter maps it onto the browser store. Follow-ups are template drafts (`followUpKind: "template"`, labelled in the dialog) because no follow-up endpoint exists; completion suggestions (optional P2) are not produced in this release. A server-backed store or an AI follow-up endpoint can replace these pieces inside the provider without changing any dashboard, card or detail component.
+Every UI component reads data and triggers actions through `useDashboardData()` (`src/components/providers/dashboard-data-provider.tsx`), whose shape is `DashboardDataApi` (`src/lib/ui/dashboard-data-api.ts`). Member 4's live adapter maps it onto `useCommitments()`. The synthetic demo adapter is used only for QA URLs with `?demo-state=…`.
+
+Follow-ups come from Member 4's `POST /api/follow-up`. The client sends `allowTemplate: true`, so without an AI key the server returns a template draft (`source: "template"`) instead of an error. `generateFollowUp()` returns `{ message, source }`, and the dialog labels template drafts.
 
 Date-only deadlines (`"2026-10-09"`) mean the end of that local day, so they are shown without a time and only become overdue after the day ends.
 

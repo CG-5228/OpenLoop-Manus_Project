@@ -214,7 +214,7 @@ function DemoNotice() {
         <p className="mb-1 flex items-center gap-1.5 font-semibold text-ink">
           <FlaskConical className="size-3.5" aria-hidden /> Demo mode
         </p>
-        Showing synthetic conversations. Changes aren&apos;t saved yet.
+        QA preview with synthetic conversations. Nothing here is saved.
       </div>
     );
   }

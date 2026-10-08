@@ -2,35 +2,48 @@
 
 ## Module implementation and foundation compatibility
 
-- [x] Work on `feature/conversation`, using only Member 2's feature paths and preserving other members' modules.
-- [x] Provide `ConversationImporter({ onImport })` for pasted text and the fictional sample, with editable content, structured preview, multiple speakers, user identification and optional explicit reference date.
-- [x] Provide `.txt` validation and UTF-8 reading with clear unsupported/empty/binary/size/encoding errors.
-- [x] Parse into canonical `Message[]`, preserving sender/content/IDs/source and known timestamps; never invent ambiguous dates.
-- [x] Provide an honest optional OCR adapter boundary and editable extracted text; disable screenshots without real OCR.
-- [x] Document exports, source boundaries and tests; provide Member 3's exact extraction handoff.
-- [x] Bring Member 5's actual app starter and `src/types/openloop.ts` from `main` into this branch, without redefining types.
-- [x] Pass 32 module tests with canonical types and the shared lint, TypeScript and Next.js production-build checks.
+- [x] Work on `feature/conversation`, preserving team-owned types/modules and shared main.
+- [x] Provide `ConversationImporter({ onImport })` for paste/sample, editable content, structured preview, multiple speakers, user identity and optional explicit reference date.
+- [x] Provide `.txt` validation and UTF-8 reading with unsupported/empty/binary/size/encoding errors.
+- [x] Emit canonical `Message[]` preserving sender, text, IDs, source and known timestamps without inventing ambiguous dates.
+- [x] Provide an honest OCR adapter boundary; screenshots remain disabled without real OCR.
+- [x] Document exports, source boundaries and Member 3's extraction handoff.
+- [x] Integrate Member 5's shared starter/types without redefining them; pass 34 module tests and shared lint/TypeScript/production-build checks before the concurrent team update.
 
-These checks establish implementation/build compatibility and the explicitly listed synthetic browser workflows, not real OCR, deployed inference or a complete product demo. PR #1 remains a draft; no merge into `main` is performed by Member 2.
+## Parser-only test interfaces
 
-## Remaining integration
+- [x] `/dev/conversation`: actual importer and structured JSON; sample/paste/.txt flows, no AI submission.
+- [x] `/dev/text-parser`: whole-block or explicitly labelled chat input, Parse text, optional author, readable output/JSON and stale-result warning without current-user gating.
+- [x] Synthetic browser checks: whole-block email-style text preservation, explicit author, labelled messages, sample/file import, stale output, Clear and known timestamp offsets.
 
-- [ ] Member 1 mounts `ConversationImporter` and aligns styling with the dashboard.
-- [ ] Wire the host callback to Member 3's real extraction endpoint, preserving `messages`, `currentUserLabel`, optional `referenceDate`, loading and errors.
-- [ ] Members 1/4/5 connect returned commitments to persistence/dashboard and verify the full sample/custom import journey in a browser, including phone layout.
-- [ ] Member 5 coordinates review/merge and verifies the deployed flow.
-- [ ] Connect and test a real OCR implementation if the P0 text-to-AI flow is working. PDF and richer chat-format parsing remain optional.
+## Live AI test harness
 
-## Interactive parser test preview
+- [x] Reuse Member 3's endpoint unchanged in a detached integration worktree, without rewriting the AI service.
+- [x] Provide text input, explicit identity, optional known author/reference date, Find commitments, loading/errors, evidence-backed output and JSON.
+- [x] Disclose actual server/model processing; no persistence, Gmail connection or automatic messaging.
+- [x] Verify the actual shared sample through the real provider: four commitments, two in each direction, exact evidence and tentative statement excluded.
+- [x] Verify a novel whole-email promise and a no-promises input using real inference.
 
-- [x] Provide `/dev/conversation` with the actual importer and structured JSON output, clearly labelled parser-only with no AI/network submission of input.
-- [x] Allow sample, pasted text and `.txt` uploads to be tested without modifying the dashboard or other members' features.
-- [x] Verify the preview via local/public HTTP and synthetic browser input, while keeping real OCR and AI extraction explicitly unavailable.
+Current live test is a temporary sandbox production server. The managed website is still parser-only and permanent publication did not complete: its earlier publication card was cancelled/denied.
 
-## Quick text-output interface
+The team merged original PR #1 while this test was being built, and advanced `feature/conversation` with shared-main/frontend/AI changes. Those concurrent changes were preserved in a normal merge into the local feature branch, not overwritten. The new live-test UI is a subsequent feature-branch change; it is not claimed to be merged into main or deployed as the completed product.
 
-- [x] Provide a whole-block / explicit chat-label paste interface and Parse text action, with optional known author and no required current-user identity.
-- [x] Show readable Message records and JSON, with unknown timestamps/senders preserved honestly and input edits flagged until re-parsed.
-- [x] Preserve the advanced importer and clearly separate this parser test from AI commitment detection and Gmail/OCR integration.
+## Remaining product integration
 
-The quick interface is at `/dev/text-parser` in the shared source and at `/` in the managed deployment copy. Browser checks verified whole-block email-style text preservation, optional known author, three labelled messages, stale-output messaging and Clear. No commitment API requests were made. Permanent publication has not completed; the earlier publication card was cancelled/denied.
+- [ ] Verify the teammate-integrated product importer/dashboard flow end-to-end; the separate test harness does not establish that product gate.
+- [ ] Validate provider access on the real hosting environment; sandbox inference does not prove permanent deployment access.
+- [ ] Members 1/4/5 verify commitment persistence/actions and the complete product flow, including phone layout.
+- [ ] Member 5 coordinates review/merge of subsequent test changes and verifies the publicly deployed end-to-end app.
+- [ ] Connect and test real OCR after the P0 text-to-AI flow is working. PDF and richer chat-format parsing remain optional.
+
+Post-integration verification also passed: 34/34 module tests plus shared lint, TypeScript and the complete Next.js build including the team's new dashboard/import routes and Member 3's actual endpoint. The live-test server remains the isolated temporary test runtime described above.
+
+## Email-list selection and filtering
+
+- [x] Import a pasted or locally uploaded structured email list, preserve sender/recipient/subject/body/date/source IDs, validate limits and provide a fictional sample.
+- [x] Provide search, sender and date-range filters, manual checkboxes and select/deselect visible; hidden and unselected emails are not included in manual analysis.
+- [x] Provide AI-select relevant emails using the real existing endpoint, selecting emails with returned evidence-backed commitments rather than a keyword-only guess.
+- [x] Group extracted data by its original email, show evidence/direction/deadlines/JSON and explicit loading/error/empty/stale states.
+- [x] Disclose server/provider processing for AI actions, no Gmail connection, no persistence, no automatic messaging; verify filters and real relevance selection and provide the updated live test URL.
+
+The real-model run selected `report` and `slides`, leaving newsletter/tentative emails unselected. The manual filtered run sent only `report`, not hidden selected `slides`; checkbox changes flagged stale output. Import/filtering made no AI requests. Reviewed blank-error/evidence regressions and all 46 module tests passed, together with shared and runtime lint/TypeScript/build checks. Import holds up to 100 emails; each AI action handles up to 10 independently with at most two active requests. This is a temporary test, not permanent deployment or a live inbox connector.
