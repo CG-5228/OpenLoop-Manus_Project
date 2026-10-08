@@ -10,6 +10,8 @@
 
 **Repository:** [CG-5228/OpenLoop-Manus_Project](https://github.com/CG-5228/OpenLoop-Manus_Project)
 
+**Draft review:** [PR #6 — Member 3 real AI commitment extraction](https://github.com/CG-5228/OpenLoop-Manus_Project/pull/6). The extraction implementation was committed as `9c78b8f` and pushed to `feature/ai-extraction`; this handoff update records that delivery. Nothing was merged to main.
+
 > **The real extraction endpoint is implemented and verified in the development environment. It has not been merged to main, integrated into the full application, or verified in a production deployment.**
 
 ## Delivered slice
