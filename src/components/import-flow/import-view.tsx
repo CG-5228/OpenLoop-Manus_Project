@@ -7,6 +7,7 @@ import { ROUTES } from "@/lib/ui/routes";
 import { Button } from "@/components/ui/button";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { ImporterSlot } from "@/components/import-flow/importer-slot";
+import { ConnectedSourcesDemo } from "@/components/import-flow/connected-sources-demo";
 import { useImportFlow, type ImportPhase } from "@/components/import-flow/use-import-flow";
 
 const STEPS = ["Import", "Analyse", "Review"] as const;
@@ -62,7 +63,12 @@ export function ImportView() {
 
       <div className="mt-9 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
         <section aria-live="polite" aria-busy={phase.kind === "analysing"}>
-          {phase.kind === "idle" && <ImporterSlot onImport={flow.onImport} />}
+          {phase.kind === "idle" && (
+            <>
+              <ConnectedSourcesDemo />
+              <ImporterSlot onImport={flow.onImport} />
+            </>
+          )}
 
           {phase.kind === "analysing" && (
             <div className="flex min-h-[320px] flex-col items-center justify-center rounded-[18px] border border-line bg-surface p-8 text-center shadow-card">
