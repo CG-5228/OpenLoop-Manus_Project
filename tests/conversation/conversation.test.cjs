@@ -247,3 +247,20 @@ test("quick parser renders whole-block input, optional author and honest output 
     crypto.randomUUID = original;
   }
 });
+
+test("live commitment test discloses provider processing and never analyses on initial render", () => {
+  const { CommitmentTestPlayground } = load("./src/components/import/CommitmentTestPlayground.js");
+  const html = renderToStaticMarkup(React.createElement(CommitmentTestPlayground));
+  assert.match(html, /Real AI processing/);
+  assert.match(html, /configured AI provider/);
+  assert.match(html, /Find commitments/);
+  assert.match(html, /does not save conversations/);
+  assert.doesNotMatch(html, /data-testid="commitment-output"/);
+});
+
+test("client commitment response guard rejects malformed outputs", () => {
+  const { isCommitmentPreview } = load("./src/lib/conversation/requestCommitments.js");
+  assert.equal(isCommitmentPreview(null), false);
+  assert.equal(isCommitmentPreview({ title: "Fake" }), false);
+  assert.equal(isCommitmentPreview({ id: "c", title: "Send report", promisor: "James", beneficiary: "Me", direction: "they_owe", dueAt: null, evidenceQuote: "I'll send you the report", sourceMessageId: "m", confidence: "high", status: "pending" }), true);
+});

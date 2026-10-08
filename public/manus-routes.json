@@ -11,6 +11,10 @@
     {
       "path": "/dev/text-parser",
       "title": "Text parser test"
+    },
+    {
+      "path": "/dev/commitment-test",
+      "title": "Live commitment test"
     }
   ]
 }
