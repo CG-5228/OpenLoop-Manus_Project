@@ -241,15 +241,61 @@ test("provider timeout and network error are informative without raw details", a
   await assert.rejects(callExtractionModel(valid(), providerConfig, async () => { throw new Error("synthetic raw details"); }), (error) => error.code === "AI_PROVIDER_ERROR" && !error.message.includes("raw"));
 });
 
-test("Next.js POST export delegates to the same handler and reports missing runtime credentials", async () => {
-  const route = require(resolve(process.env.OPENLOOP_COMPILED_ROOT, "src/app/api/commitments/extract/route.js"));
-  const key = process.env.OPENAI_API_KEY;
+async function withEnv(vars, fn) {
+  const saved = Object.fromEntries(Object.keys(vars).map((k) => [k, process.env[k]]));
   try {
-    delete process.env.OPENAI_API_KEY;
-    const response = await route.POST(httpRequest());
-    assert.equal(response.status, 503);
-    assert.equal((await response.json()).error.code, "AI_NOT_CONFIGURED");
+    for (const [k, v] of Object.entries(vars)) {
+      if (v === undefined) delete process.env[k];
+      else process.env[k] = v;
+    }
+    return await fn();
   } finally {
-    if (key !== undefined) process.env.OPENAI_API_KEY = key;
+    for (const [k, v] of Object.entries(saved)) {
+      if (v === undefined) delete process.env[k];
+      else process.env[k] = v;
+    }
   }
+}
+const route = () => require(resolve(process.env.OPENLOOP_COMPILED_ROOT, "src/app/api/commitments/extract/route.js"));
+test("Next.js POST export in forced AI mode reports missing runtime credentials", async () => {
+  await withEnv({ OPENAI_API_KEY: undefined, OPENLOOP_EXTRACTION_MODE: "ai" }, async () => {
+    const response = await route().POST(httpRequest());
+    assert.equal(response.status, 503);
+    assert.equal(response.headers.get("X-OpenLoop-Extraction"), "ai");
+    assert.equal((await response.json()).error.code, "AI_NOT_CONFIGURED");
+  });
+});
+test("without credentials the route falls back to labelled demo extraction through the same validation", async () => {
+  await withEnv({ OPENAI_API_KEY: undefined, OPENLOOP_EXTRACTION_MODE: undefined }, async () => {
+    const response = await route().POST(httpRequest());
+    assert.equal(response.status, 200);
+    assert.equal(response.headers.get("X-OpenLoop-Extraction"), "demo");
+    const { commitments } = await response.json();
+    const summary = commitments.map((c) => [c.title, c.direction, c.promisor, c.beneficiary, c.dueAt]);
+    assert.deepEqual(summary, [
+      ["Send Sarah the slides", "you_owe", "Me", "Sarah", "2026-10-08"],
+      ["Email the report", "they_owe", "James", "Me", "2026-10-09"],
+      ["Transfer Sam €20", "you_owe", "Me", "Sam", "2026-10-09"],
+      ["Send the API key", "they_owe", "Alex", "Me", null],
+    ]);
+    assert.ok(commitments.every((c) => c.status === "pending" && typeof c.id === "string" && c.id.length > 0));
+    assert.ok(!commitments.some((c) => /might/i.test(c.evidenceQuote)), "hedged promise must be excluded");
+  });
+});
+test("demo extraction skips hedges, negations and questions and resolves accepted requests", async () => {
+  const { demoExtraction } = require(resolve(process.env.OPENLOOP_COMPILED_ROOT, "src/lib/ai/demo-extractor.js"));
+  const { handleExtractionRequest } = require(resolve(process.env.OPENLOOP_COMPILED_ROOT, "src/lib/ai/http.js"));
+  const messages = [
+    message("Sarah", "Can you send me the deck before the meeting?", "d1"),
+    message("Me", "Sure, will do!", "d2"),
+    message("Sarah", "Maybe I'll bring dessert if I have time.", "d3"),
+    message("Sarah", "I won't be late this time.", "d4"),
+    message("Me", "Will I see you at 6?", "d5"),
+  ];
+  const response = await handleExtractionRequest(httpRequest({ messages, currentUserLabel: "Me" }), demoExtraction);
+  assert.equal(response.status, 200);
+  const { commitments } = await response.json();
+  assert.deepEqual(commitments.map((c) => [c.title, c.direction, c.beneficiary, c.evidenceQuote]), [
+    ["Send Sarah the deck before the meeting", "you_owe", "Sarah", "Sure, will do!"],
+  ]);
 });
