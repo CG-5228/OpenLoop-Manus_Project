@@ -11,6 +11,14 @@
     {
       "path": "/import",
       "title": "Add a conversation"
+    },
+    {
+      "path": "/dev/conversation",
+      "title": "Conversation parser test"
+    },
+    {
+      "path": "/dev/text-parser",
+      "title": "Text parser test"
     }
   ]
 }
