@@ -1,6 +1,7 @@
 import { Toaster } from "sonner";
 import { DashboardDataProvider } from "@/components/providers/dashboard-data-provider";
 import { AppShell } from "@/components/app-shell/app-shell";
+import { getExtractionMode } from "@/lib/ai/demo-extractor";
 
 /**
  * Layout for the signed-in app area (dashboard, commitment details).
@@ -10,7 +11,7 @@ import { AppShell } from "@/components/app-shell/app-shell";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <DashboardDataProvider>
-      <AppShell>{children}</AppShell>
+      <AppShell extractionMode={getExtractionMode()}>{children}</AppShell>
       <Toaster
         position="bottom-right"
         offset={20}

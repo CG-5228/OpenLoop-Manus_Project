@@ -9,6 +9,7 @@ import { EmptyState, ErrorState } from "@/components/ui/states";
 import { ImporterSlot } from "@/components/import-flow/importer-slot";
 import { ConnectedSourcesDemo } from "@/components/import-flow/connected-sources-demo";
 import { useImportFlow, type ImportPhase } from "@/components/import-flow/use-import-flow";
+import type { ExtractionMode } from "@/lib/ui/api-client";
 
 const STEPS = ["Import", "Analyse", "Review"] as const;
 
@@ -16,7 +17,7 @@ function stepIndex(phase: ImportPhase) {
   return phase.kind === "idle" ? 0 : 1;
 }
 
-export function ImportView() {
+export function ImportView({ extractionMode }: { extractionMode: ExtractionMode }) {
   const flow = useImportFlow();
   const { phase } = flow;
   const current = stepIndex(phase);
@@ -63,12 +64,11 @@ export function ImportView() {
 
       <div className="mt-9 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
         <section aria-live="polite" aria-busy={phase.kind === "analysing"}>
-          {phase.kind === "idle" && (
-            <>
-              <ConnectedSourcesDemo />
-              <ImporterSlot onImport={flow.onImport} />
-            </>
-          )}
+          {/* Kept mounted so the pasted conversation survives an error or a retry. */}
+          <div hidden={phase.kind !== "idle"} className="space-y-6">
+            <ImporterSlot onImport={flow.onImport} extractionMode={extractionMode} />
+            <ConnectedSourcesDemo />
+          </div>
 
           {phase.kind === "analysing" && (
             <div className="flex min-h-[320px] flex-col items-center justify-center rounded-[18px] border border-line bg-surface p-8 text-center shadow-card">
@@ -79,7 +79,8 @@ export function ImportView() {
                 Finding commitments in {phase.messageCount} message{phase.messageCount === 1 ? "" : "s"}…
               </h2>
               <p className="mt-1.5 max-w-[380px] text-[14px] leading-relaxed text-ink-2">
-                Separating real promises from maybes and small talk. This usually takes a few seconds.
+                Separating real promises from maybes and small talk.
+                {extractionMode === "ai" ? " This usually takes a few seconds." : ""}
               </p>
               <Button variant="ghost" size="sm" className="mt-6" onClick={flow.cancel}>
                 Cancel
@@ -140,8 +141,10 @@ export function ImportView() {
           </div>
           <p className="flex gap-2 px-1 text-[12px] leading-relaxed text-ink-3">
             <ShieldCheck className="mt-0.5 size-4 shrink-0" aria-hidden />
-            Your conversation is sent to OpenLoop&apos;s AI only when you choose to analyse it. Use
-            fictional or non-sensitive messages for demos.
+            {extractionMode === "ai"
+              ? "Your conversation is sent to OpenLoop’s AI provider only when you choose to analyse it."
+              : "Demo extraction runs on OpenLoop’s server with rules, not AI. Nothing is stored on the server."}{" "}
+            Results are saved in this browser only. Use fictional or non-sensitive messages for demos.
           </p>
         </aside>
       </div>

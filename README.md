@@ -99,12 +99,14 @@ npm run dev
 
 Open <http://localhost:3000>.
 
-The actual AI environment variable names depend on the provider chosen by the AI owner. Document the **exact names** here once verified; configure them in `.env.local` locally and as deployment secrets. Do **not** commit keys or `.env.local`.
+No environment variables are required. Without an AI key, OpenLoop runs **demo extraction**: rule-based, clearly labelled in the UI, and validated exactly like AI output. Commitments are saved in the browser. To enable AI extraction, set server-only secrets in `.env.local` locally and in Vercel for deployments. Do **not** commit keys or `.env.local`.
 
 ```bash
-# Example ONLY if the team selects the OpenAI API:
+# Optional: AI extraction (OpenAI-compatible)
 # OPENAI_API_KEY=your_secret_here
-# OPENAI_MODEL=your_chosen_supported_model
+# OPENAI_MODEL=gpt-5-mini
+# Optional: force a mode regardless of the key
+# OPENLOOP_EXTRACTION_MODE=demo   # or: ai
 ```
 
 To verify integration:

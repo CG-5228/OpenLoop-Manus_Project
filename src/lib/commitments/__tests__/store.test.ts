@@ -120,10 +120,13 @@ describe("saving and retrieving", () => {
       commitment({ id: "d1", title: "T1", dueAt: "2026-10-09T17:00:00Z", evidenceQuote: "q1" }),
       commitment({ id: "d2", title: "T2", dueAt: "sometime", evidenceQuote: "q2" }),
       commitment({ id: "d3", title: "T3", dueAt: null, evidenceQuote: "q3" }),
+      commitment({ id: "d4", title: "T4", dueAt: "2026-10-08", evidenceQuote: "q4" }),
     ]);
     expect(s.getCommitment("d1")!.dueAt).toBe("2026-10-09T17:00:00.000Z");
     expect(s.getCommitment("d2")!.dueAt).toBeNull();
     expect(s.getCommitment("d3")!.dueAt).toBeNull();
+    // Member 3 returns date-only deadlines; keep them as calendar dates.
+    expect(s.getCommitment("d4")!.dueAt).toBe("2026-10-08");
   });
 });
 
@@ -390,7 +393,7 @@ describe("updateCommitment — team contract (status | dueAt)", () => {
     s.updateCommitment("c1", { dueAt: "2026-10-09", status: "completed" });
     expect(calls).toBe(1);
     expect(s.getCommitment("c1")).toMatchObject({ status: "completed" });
-    expect(s.getCommitment("c1")?.dueAt).toMatch(/^2026-10-09T/);
+    expect(s.getCommitment("c1")?.dueAt).toBe("2026-10-09");
     expect(s.getRecord("c1")?.deadlineEditedByUser).toBe(true);
   });
 

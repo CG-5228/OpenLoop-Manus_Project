@@ -20,7 +20,7 @@ import type { Commitment, CompletionSuggestion, Message } from "@/types/openloop
 export type LoadState = "loading" | "ready" | "error";
 
 export interface DashboardDataApi {
-  /** "demo" while backed by synthetic fixtures; "live" once Member 4's hook is wired. */
+  /** "demo" while backed by synthetic fixtures; "live" when backed by real imported data. */
   mode: "demo" | "live";
   state: LoadState;
   error: string | null;
@@ -43,7 +43,8 @@ export interface DashboardDataApi {
   dismiss(id: string): void;
   updateDeadline(id: string, dueAt: string | null): void;
   /** Returns a draft follow-up. The user must review it; nothing is sent. */
-  generateFollowUp(commitment: Commitment): Promise<string>;
+  /** A draft for the user to review and send themselves; "template" drafts are labelled in the UI. */
+  generateFollowUp(commitment: Commitment): Promise<FollowUpDraft>;
 
   // Smart resolution (Member 5, optional) — user confirms or rejects
   confirmSuggestion(commitmentId: string): void;
@@ -52,4 +53,9 @@ export interface DashboardDataApi {
   // Demo-only helpers (optional)
   resetDemo?(): void;
   clearAll?(): void;
+}
+
+export interface FollowUpDraft {
+  message: string;
+  source: "ai" | "template";
 }

@@ -20,18 +20,29 @@ import { useDashboardData } from "@/components/providers/dashboard-data-provider
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { SheetContent } from "@/components/ui/dialog";
+import type { ExtractionMode } from "@/lib/ui/api-client";
 import { computeStats, parseStatus, parseView, toSuggestionMap } from "@/lib/ui/commitment-view";
 import { ROUTES, dashboardHref } from "@/lib/ui/routes";
 import { useNow } from "@/lib/ui/use-now";
 
-export function AppShell({ children }: { children: React.ReactNode }) {
+/**
+ * `extractionMode` comes from the server (`getExtractionMode()`), so the sidebar
+ * never claims rule-based extraction while real AI is running, or vice versa.
+ */
+export function AppShell({
+  children,
+  extractionMode,
+}: {
+  children: React.ReactNode;
+  extractionMode: ExtractionMode;
+}) {
   return (
     <div className="flex min-h-dvh w-full">
       <aside className="sticky top-0 hidden h-dvh w-[252px] shrink-0 flex-col border-r border-line bg-canvas lg:flex">
-        <SidebarContents />
+        <SidebarContents extractionMode={extractionMode} />
       </aside>
       <div className="flex min-w-0 flex-1 flex-col">
-        <MobileHeader />
+        <MobileHeader extractionMode={extractionMode} />
         <main id="main" className="flex min-w-0 flex-1 flex-col">
           {children}
         </main>
@@ -40,7 +51,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function MobileHeader() {
+function MobileHeader({ extractionMode }: { extractionMode: ExtractionMode }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -53,7 +64,7 @@ function MobileHeader() {
             </Button>
           </D.Trigger>
           <SheetContent title="Navigation">
-            <SidebarContents onNavigate={() => setOpen(false)} />
+            <SidebarContents extractionMode={extractionMode} onNavigate={() => setOpen(false)} />
           </SheetContent>
         </D.Root>
         <Link href={ROUTES.dashboard} aria-label="OpenLoop dashboard">
@@ -72,7 +83,13 @@ function MobileHeader() {
   );
 }
 
-function SidebarContents({ onNavigate }: { onNavigate?: () => void }) {
+function SidebarContents({
+  extractionMode,
+  onNavigate,
+}: {
+  extractionMode: ExtractionMode;
+  onNavigate?: () => void;
+}) {
   return (
     <div className="flex h-full flex-col px-3 py-4">
       <div className="px-2 pb-5">
@@ -92,7 +109,7 @@ function SidebarContents({ onNavigate }: { onNavigate?: () => void }) {
       </Suspense>
 
       <div className="mt-auto space-y-3 px-1">
-        <DemoNotice />
+        <DemoNotice extractionMode={extractionMode} />
         <div className="flex items-center gap-2.5 rounded-xl px-2 py-1.5">
           <span className="inline-flex size-7 items-center justify-center rounded-full bg-ink text-[10px] font-semibold text-ink-inverse">
             You
@@ -205,15 +222,64 @@ function NavLinks({
   );
 }
 
-function DemoNotice() {
+function DemoNotice({ extractionMode }: { extractionMode: ExtractionMode }) {
   const api = useDashboardData();
-  if (api.mode !== "demo") return null;
+  const [confirming, setConfirming] = useState(false);
+  if (api.mode === "demo") {
+    return (
+      <div className="rounded-xl border border-line bg-surface p-3 text-xs leading-relaxed text-ink-2 shadow-card">
+        <p className="mb-1 flex items-center gap-1.5 font-semibold text-ink">
+          <FlaskConical className="size-3.5" aria-hidden /> Demo mode
+        </p>
+        QA preview with synthetic conversations. Nothing here is saved.
+      </div>
+    );
+  }
+  const hasData = api.state === "ready" && api.commitments.length > 0;
+  const aiOn = extractionMode === "ai";
   return (
     <div className="rounded-xl border border-line bg-surface p-3 text-xs leading-relaxed text-ink-2 shadow-card">
       <p className="mb-1 flex items-center gap-1.5 font-semibold text-ink">
-        <FlaskConical className="size-3.5" aria-hidden /> Demo mode
+        {aiOn ? (
+          <>
+            <Sparkles className="size-3.5" aria-hidden /> AI extraction on
+          </>
+        ) : (
+          <>
+            <FlaskConical className="size-3.5" aria-hidden /> Demo release
+          </>
+        )}
       </p>
-      Sample data is shown until you import a conversation. Changes aren&apos;t saved yet.
+      {aiOn
+        ? "Conversations are analysed by AI when you choose. Your loops are saved in this browser only."
+        : "Rule-based extraction stands in for AI. Your loops are saved in this browser only."}
+      {hasData &&
+        api.clearAll &&
+        (confirming ? (
+          <span className="mt-2 flex items-center gap-2">
+            <button
+              type="button"
+              className="font-semibold text-overdue-fg hover:underline"
+              onClick={() => {
+                api.clearAll?.();
+                setConfirming(false);
+              }}
+            >
+              Delete all
+            </button>
+            <button type="button" className="text-ink-3 hover:text-ink" onClick={() => setConfirming(false)}>
+              Cancel
+            </button>
+          </span>
+        ) : (
+          <button
+            type="button"
+            className="mt-2 block font-medium text-ink-2 underline decoration-line-strong underline-offset-2 hover:text-ink"
+            onClick={() => setConfirming(true)}
+          >
+            Clear saved data
+          </button>
+        ))}
     </div>
   );
 }

@@ -9,6 +9,7 @@
  * Failures surface as `ApiError` with a user-facing message. Callers must show
  * the error — never substitute fixture data for a failed live request.
  */
+import type { FollowUpDraft } from "@/lib/ui/dashboard-data-api";
 import type { Commitment, Message } from "@/types/openloop";
 
 export class ApiError extends Error {
@@ -22,6 +23,14 @@ export class ApiError extends Error {
 }
 
 async function postJson<T>(url: string, body: unknown, signal?: AbortSignal): Promise<T> {
+  return (await postJsonWithHeaders<T>(url, body, signal)).data;
+}
+
+async function postJsonWithHeaders<T>(
+  url: string,
+  body: unknown,
+  signal?: AbortSignal,
+): Promise<{ data: T; headers: Headers }> {
   let res: Response;
   try {
     res = await fetch(url, {
@@ -52,7 +61,7 @@ async function postJson<T>(url: string, body: unknown, signal?: AbortSignal): Pr
     }
     throw new ApiError(detail ?? `The request failed (${res.status}). Please try again.`, res.status);
   }
-  return (await res.json()) as T;
+  return { data: (await res.json()) as T, headers: res.headers };
 }
 
 export interface ExtractRequest {
@@ -61,12 +70,20 @@ export interface ExtractRequest {
   referenceDate?: string;
 }
 
+/** "ai" = language-model extraction; "demo" = rule-based demo extraction (no AI provider configured). */
+export type ExtractionMode = "ai" | "demo";
+
 export async function extractCommitments(req: ExtractRequest, signal?: AbortSignal) {
-  const data = await postJson<{ commitments?: unknown }>("/api/commitments/extract", req, signal);
+  const { data, headers } = await postJsonWithHeaders<{ commitments?: unknown }>(
+    "/api/commitments/extract",
+    req,
+    signal,
+  );
   if (!Array.isArray(data.commitments)) {
     throw new ApiError("The analysis returned an unexpected response.", 502);
   }
-  return data.commitments as Commitment[];
+  const mode: ExtractionMode = headers.get("X-OpenLoop-Extraction") === "ai" ? "ai" : "demo";
+  return { commitments: data.commitments as Commitment[], mode };
 }
 
 export async function requestFollowUp(
@@ -74,9 +91,15 @@ export async function requestFollowUp(
   tone: "casual" | "polite" | "firm" = "casual",
   signal?: AbortSignal,
 ) {
-  const data = await postJson<{ message?: unknown }>("/api/follow-up", { commitment, tone }, signal);
+  // allowTemplate: when AI is unavailable (e.g. no key in a demo deployment), the
+  // server returns a labelled template draft instead of failing.
+  const data = await postJson<{ message?: unknown; source?: unknown }>(
+    "/api/follow-up",
+    { commitment, tone, allowTemplate: true },
+    signal,
+  );
   if (typeof data.message !== "string" || !data.message.trim()) {
     throw new ApiError("The follow-up service returned an empty draft.", 502);
   }
-  return data.message;
+  return { message: data.message, source: data.source === "ai" ? "ai" : "template" } satisfies FollowUpDraft;
 }

@@ -47,3 +47,11 @@ Post-integration verification also passed: 34/34 module tests plus shared lint, 
 - [x] Disclose server/provider processing for AI actions, no Gmail connection, no persistence, no automatic messaging; verify filters and real relevance selection and provide the updated live test URL.
 
 The real-model run selected `report` and `slides`, leaving newsletter/tentative emails unselected. The manual filtered run sent only `report`, not hidden selected `slides`; checkbox changes flagged stale output. Import/filtering made no AI requests. Reviewed blank-error/evidence regressions and all 46 module tests passed, together with shared and runtime lint/TypeScript/build checks. Import holds up to 100 emails; each AI action handles up to 10 independently with at most two active requests. This is a temporary test, not permanent deployment or a live inbox connector.
+
+## Landing-page wording: automatic-source vision
+
+- [x] Replace import-first hero, supporting steps/features and closing CTA copy with email/university-site/ticket monitoring and calendar-oriented positioning, preserving existing layout and working demo routes.
+- [x] Clearly distinguish planned automatic source reading/calendar sync from the current demo; do not claim those integrations were implemented by a wording change.
+- [x] Align the metadata description, verify compilation and rendered text, and save the copy-only change on feature/conversation for team review.
+
+Lint, TypeScript and the full production build passed. Local/public raw HTML verified the new hero, planned-integration disclosure, current-demo CTA and matching description. This changes marketing copy only, not mailbox permissions, automatic monitoring or calendar behavior; it is a preview/feature-branch change until the team reviews and deploys it.
