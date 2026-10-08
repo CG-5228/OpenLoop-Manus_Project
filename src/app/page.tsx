@@ -38,23 +38,23 @@ const STEPS = [
 
 const FEATURES = [
   {
-    title: "A two-way ledger",
-    body: "What you owe and what you're owed, side by side. Not just another one-sided to-do list.",
+    title: "Emails that become actions",
+    body: "Planned email connections will surface deadlines and commitments from the accounts you authorise — not just the messages you remember to copy.",
     Icon: ArrowDownLeft,
   },
   {
-    title: "Evidence on every item",
-    body: "Each commitment links to the exact message it came from. Nothing is paraphrased, and deadlines are never invented.",
+    title: "University updates in one place",
+    body: "Planned website monitoring will help catch assignment dates, timetable changes and university events from the pages you choose.",
     Icon: Quote,
   },
   {
-    title: "Smart completion",
-    body: "When James writes “here's the report I promised”, OpenLoop suggests closing the loop. You always make the call.",
+    title: "Tickets with a place in your day",
+    body: "Planned ticket reading will pick out event and booking details, ready to become useful calendar entries.",
     Icon: Sparkles,
   },
   {
-    title: "Follow-ups you approve",
-    body: "Draft a friendly nudge in one click, edit it, copy it. OpenLoop never sends a message on your behalf.",
+    title: "A calendar backed by the source",
+    body: "Planned calendar entries will link back to the original email, university page or ticket, so you can check the details instead of trusting a guess.",
     Icon: MessageSquareText,
   },
 ];
@@ -173,17 +173,17 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1160px] px-5 py-20 sm:px-8 sm:py-28">
           <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.14em] text-ink-3">Built for trust</p>
+              <p className="font-mono text-xs uppercase tracking-[0.14em] text-ink-3">What we&apos;re building next</p>
               <h2 className="mt-3 font-display text-[38px] leading-[1.08] tracking-[-0.015em] text-ink sm:text-[52px]">
-                Accountability without the awkwardness.
+                Your sources. Your schedule. Less manual work.
               </h2>
               <p className="mt-5 max-w-[440px] text-[16px] leading-relaxed text-ink-2">
-                OpenLoop is careful by design. Uncertain results are flagged for review, every item carries its
-                evidence, and nothing is marked done — or sent — without you.
+                We&apos;re moving beyond manual imports toward sources you authorise and a calendar that
+                stays useful. The aim is less copying and pasting, with source evidence and review for uncertain details.
               </p>
               <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-line bg-canvas px-3 py-1.5 text-[13px] text-ink-2">
                 <ShieldCheck className="size-4 text-done" aria-hidden />
-                Your imported conversations are never shared publicly.
+                Planned, not yet connected: today&apos;s demo analyses conversations you paste.
               </p>
             </div>
             <div className="grid gap-px overflow-hidden rounded-[18px] border border-line bg-line sm:grid-cols-2">
