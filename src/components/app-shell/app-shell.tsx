@@ -207,13 +207,51 @@ function NavLinks({
 
 function DemoNotice() {
   const api = useDashboardData();
-  if (api.mode !== "demo") return null;
+  const [confirming, setConfirming] = useState(false);
+  if (api.mode === "demo") {
+    return (
+      <div className="rounded-xl border border-line bg-surface p-3 text-xs leading-relaxed text-ink-2 shadow-card">
+        <p className="mb-1 flex items-center gap-1.5 font-semibold text-ink">
+          <FlaskConical className="size-3.5" aria-hidden /> Demo mode
+        </p>
+        Showing synthetic conversations. Changes aren&apos;t saved yet.
+      </div>
+    );
+  }
+  const hasData = api.state === "ready" && api.commitments.length > 0;
   return (
     <div className="rounded-xl border border-line bg-surface p-3 text-xs leading-relaxed text-ink-2 shadow-card">
       <p className="mb-1 flex items-center gap-1.5 font-semibold text-ink">
-        <FlaskConical className="size-3.5" aria-hidden /> Demo mode
+        <FlaskConical className="size-3.5" aria-hidden /> Demo release
       </p>
-      Showing synthetic conversations. Changes aren&apos;t saved yet.
+      Rule-based extraction stands in for AI. Your loops are saved in this browser only.
+      {hasData &&
+        api.clearAll &&
+        (confirming ? (
+          <span className="mt-2 flex items-center gap-2">
+            <button
+              type="button"
+              className="font-semibold text-overdue-fg hover:underline"
+              onClick={() => {
+                api.clearAll?.();
+                setConfirming(false);
+              }}
+            >
+              Delete all
+            </button>
+            <button type="button" className="text-ink-3 hover:text-ink" onClick={() => setConfirming(false)}>
+              Cancel
+            </button>
+          </span>
+        ) : (
+          <button
+            type="button"
+            className="mt-2 block font-medium text-ink-2 underline decoration-line-strong underline-offset-2 hover:text-ink"
+            onClick={() => setConfirming(true)}
+          >
+            Clear saved data
+          </button>
+        ))}
     </div>
   );
 }

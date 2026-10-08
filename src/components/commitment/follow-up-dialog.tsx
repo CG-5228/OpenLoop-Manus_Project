@@ -76,10 +76,10 @@ function FollowUpBody({ commitment }: { commitment: Commitment }) {
 
   return (
     <>
-      {api.mode === "demo" && (
+      {api.followUpKind === "template" && (
         <p className="mb-3 inline-flex items-center gap-1.5 rounded-md bg-review-bg px-2 py-1 text-xs font-medium text-review-fg">
           <TriangleAlert className="size-3.5" aria-hidden />
-          Demo mode — this draft comes from a template, not AI.
+          Drafted from a template, not AI. Review it before sending.
         </p>
       )}
 

@@ -36,13 +36,32 @@ export const STATUS_LABEL: Record<DisplayStatus, string> = {
   dismissed: "Dismissed",
 };
 
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+
+/** True for date-only deadlines such as "2026-10-09" (no time of day was stated). */
+export function isDateOnly(iso: string) {
+  return DATE_ONLY.test(iso);
+}
+
+/**
+ * Parse a deadline. Date-only values mean "by the end of that local day", so a
+ * promise "for tonight" is not shown as overdue from midnight UTC.
+ */
+export function parseDue(iso: string): Date {
+  if (isDateOnly(iso)) {
+    const [y, m, d] = iso.split("-").map(Number);
+    return new Date(y, m - 1, d, 23, 59, 59, 999);
+  }
+  return new Date(iso);
+}
+
 export function isOpen(c: Commitment) {
   return c.status === "pending";
 }
 
 export function isOverdue(c: Commitment, now: Date) {
   if (c.status !== "pending" || !c.dueAt) return false;
-  return new Date(c.dueAt).getTime() < now.getTime();
+  return parseDue(c.dueAt).getTime() < now.getTime();
 }
 
 /** Reasons a pending commitment needs the user's attention. */
@@ -131,11 +150,12 @@ function hasTime(d: Date) {
 
 export function formatDue(c: Commitment, now: Date): DueInfo {
   if (!c.dueAt) return { label: "No deadline", relative: null, tone: "none" };
-  const d = new Date(c.dueAt);
+  const dateOnly = isDateOnly(c.dueAt);
+  const d = parseDue(c.dueAt);
   if (Number.isNaN(d.getTime()))
     return { label: "Invalid date", relative: null, tone: "none" };
 
-  const time = hasTime(d) ? `, ${format(d, "HH:mm")}` : "";
+  const time = !dateOnly && hasTime(d) ? `, ${format(d, "HH:mm")}` : "";
   let label: string;
   if (isToday(d)) label = `Today${time}`;
   else if (isTomorrow(d)) label = `Tomorrow${time}`;
@@ -158,7 +178,7 @@ export function formatDue(c: Commitment, now: Date): DueInfo {
   if (days <= 1) {
     const mins = differenceInMinutes(d, now);
     const relative =
-      days === 0
+      days === 0 && !dateOnly
         ? mins < 60
           ? `in ${Math.max(mins, 1)} min`
           : `in ${Math.floor(mins / 60)} h`
@@ -170,9 +190,9 @@ export function formatDue(c: Commitment, now: Date): DueInfo {
 
 export function formatFullDate(iso: string | null) {
   if (!iso) return null;
-  const d = new Date(iso);
+  const d = parseDue(iso);
   if (Number.isNaN(d.getTime())) return null;
-  return format(d, hasTime(d) ? "EEEE d MMMM yyyy, HH:mm" : "EEEE d MMMM yyyy");
+  return format(d, !isDateOnly(iso) && hasTime(d) ? "EEEE d MMMM yyyy, HH:mm" : "EEEE d MMMM yyyy");
 }
 
 export const CONFIDENCE_LABEL: Record<Confidence, string> = {
@@ -283,7 +303,7 @@ export function sortCommitments(list: Commitment[], sort: SortKey) {
     if (!a.dueAt && !b.dueAt) return a.title.localeCompare(b.title);
     if (!a.dueAt) return 1;
     if (!b.dueAt) return -1;
-    return new Date(a.dueAt).getTime() - new Date(b.dueAt).getTime();
+    return parseDue(a.dueAt).getTime() - parseDue(b.dueAt).getTime();
   });
 }
 

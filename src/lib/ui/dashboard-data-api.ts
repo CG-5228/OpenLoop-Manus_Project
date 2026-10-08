@@ -20,8 +20,10 @@ import type { Commitment, CompletionSuggestion, Message } from "@/types/openloop
 export type LoadState = "loading" | "ready" | "error";
 
 export interface DashboardDataApi {
-  /** "demo" while backed by synthetic fixtures; "live" once Member 4's hook is wired. */
+  /** "demo" while backed by synthetic fixtures; "live" when backed by real imported data. */
   mode: "demo" | "live";
+  /** Where follow-up drafts come from; "template" drafts are labelled in the UI. */
+  followUpKind: "template" | "ai";
   state: LoadState;
   error: string | null;
 

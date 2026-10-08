@@ -203,7 +203,7 @@ export function CommitmentCard({
                       Change deadline
                     </MenuItem>
                     <MenuItem icon={<MessageSquareText />} onSelect={() => setFollowUpOpen(true)}>
-                      Generate follow-up
+                      Draft follow-up
                     </MenuItem>
                     <MenuSeparator />
                     <MenuItem destructive icon={<CircleSlash />} onSelect={() => actions.dismiss(c)}>

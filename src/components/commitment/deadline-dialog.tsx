@@ -6,11 +6,12 @@ import type { Commitment } from "@/types/openloop";
 import { useCommitmentActions } from "@/components/commitment/use-commitment-actions";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { formatFullDate } from "@/lib/ui/commitment-view";
+import { formatFullDate, isDateOnly } from "@/lib/ui/commitment-view";
 import { cn } from "@/lib/utils";
 
 function toParts(iso: string | null) {
   if (!iso) return { date: "", time: "" };
+  if (isDateOnly(iso)) return { date: iso, time: "" };
   const d = new Date(iso);
   return { date: format(d, "yyyy-MM-dd"), time: format(d, "HH:mm") };
 }

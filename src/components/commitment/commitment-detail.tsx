@@ -266,7 +266,7 @@ function DetailBody({
                   <CircleCheck /> Mark completed
                 </Button>
                 <Button className="w-full justify-start" onClick={() => setFollowUpOpen(true)}>
-                  <MessageSquareText /> Generate follow-up
+                  <MessageSquareText /> Draft follow-up
                 </Button>
                 <Button className="w-full justify-start" onClick={() => setDeadlineOpen(true)}>
                   <CalendarClock /> Change deadline

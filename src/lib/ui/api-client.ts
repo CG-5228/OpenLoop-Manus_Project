@@ -22,6 +22,14 @@ export class ApiError extends Error {
 }
 
 async function postJson<T>(url: string, body: unknown, signal?: AbortSignal): Promise<T> {
+  return (await postJsonWithHeaders<T>(url, body, signal)).data;
+}
+
+async function postJsonWithHeaders<T>(
+  url: string,
+  body: unknown,
+  signal?: AbortSignal,
+): Promise<{ data: T; headers: Headers }> {
   let res: Response;
   try {
     res = await fetch(url, {
@@ -52,7 +60,7 @@ async function postJson<T>(url: string, body: unknown, signal?: AbortSignal): Pr
     }
     throw new ApiError(detail ?? `The request failed (${res.status}). Please try again.`, res.status);
   }
-  return (await res.json()) as T;
+  return { data: (await res.json()) as T, headers: res.headers };
 }
 
 export interface ExtractRequest {
@@ -61,12 +69,20 @@ export interface ExtractRequest {
   referenceDate?: string;
 }
 
+/** "ai" = language-model extraction; "demo" = rule-based demo extraction (no AI provider configured). */
+export type ExtractionMode = "ai" | "demo";
+
 export async function extractCommitments(req: ExtractRequest, signal?: AbortSignal) {
-  const data = await postJson<{ commitments?: unknown }>("/api/commitments/extract", req, signal);
+  const { data, headers } = await postJsonWithHeaders<{ commitments?: unknown }>(
+    "/api/commitments/extract",
+    req,
+    signal,
+  );
   if (!Array.isArray(data.commitments)) {
     throw new ApiError("The analysis returned an unexpected response.", 502);
   }
-  return data.commitments as Commitment[];
+  const mode: ExtractionMode = headers.get("X-OpenLoop-Extraction") === "ai" ? "ai" : "demo";
+  return { commitments: data.commitments as Commitment[], mode };
 }
 
 export async function requestFollowUp(
