@@ -1,0 +1,18 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "rootDir": "../..",
+    "noEmit": false,
+    "incremental": false,
+    "declaration": false,
+    "plugins": []
+  },
+  "include": [
+    "../../src/lib/ai/**/*.ts",
+    "../../src/types/openloop.ts",
+    "../../src/app/api/commitments/extract/route.ts"
+  ],
+  "exclude": ["../../node_modules"]
+}
