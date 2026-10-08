@@ -20,10 +20,11 @@ import {
   getCounterparty,
   getDisplayStatus,
   getReviewReasons,
+  isPreviewCommitment,
 } from "@/lib/ui/commitment-view";
 import { ROUTES } from "@/lib/ui/routes";
 import { Avatar } from "@/components/ui/primitives";
-import { ConfidenceMeter, StatusBadge } from "@/components/ui/badges";
+import { ConfidenceMeter, PreviewDataBadge, StatusBadge } from "@/components/ui/badges";
 import { Button } from "@/components/ui/button";
 import { Menu, MenuContent, MenuItem, MenuSeparator, MenuTrigger } from "@/components/ui/menu";
 import { LoopCheck } from "@/components/commitment/loop-check";
@@ -111,6 +112,7 @@ export function CommitmentCard({
                 {c.title}
               </Link>
             </h3>
+            {isPreviewCommitment(c) && <PreviewDataBadge className="-mt-px" />}
             <StatusBadge status={status} className="-mt-px" />
           </div>
 

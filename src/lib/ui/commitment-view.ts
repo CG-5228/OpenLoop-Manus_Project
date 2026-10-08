@@ -49,6 +49,14 @@ export function isDateOnly(iso: string) {
   return DATE_ONLY.test(iso);
 }
 
+/** Id prefix used by the simulated "Connect your apps" preview for its fictional commitments. */
+export const PREVIEW_ID_PREFIX = "preview-";
+
+/** True for fictional commitments added by the simulated app-connection preview, not real imports. */
+export function isPreviewCommitment(c: Pick<Commitment, "id">) {
+  return c.id.startsWith(PREVIEW_ID_PREFIX);
+}
+
 /**
  * Parses a deadline for display. A date-only value is a calendar date in the
  * user's local time zone. `new Date("2026-10-08")` would read it as UTC midnight,

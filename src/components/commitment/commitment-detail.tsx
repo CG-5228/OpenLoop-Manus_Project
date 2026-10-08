@@ -21,6 +21,7 @@ import {
   formatFullDate,
   getDisplayStatus,
   getReviewReasons,
+  isPreviewCommitment,
 } from "@/lib/ui/commitment-view";
 import { ROUTES } from "@/lib/ui/routes";
 import { useNow } from "@/lib/ui/use-now";
@@ -28,7 +29,7 @@ import { useDashboardData } from "@/components/providers/dashboard-data-provider
 import { useCommitmentActions } from "@/components/commitment/use-commitment-actions";
 import { FollowUpDialog } from "@/components/commitment/follow-up-dialog";
 import { DeadlineDialog } from "@/components/commitment/deadline-dialog";
-import { ConfidenceMeter, DirectionBadge, StatusBadge } from "@/components/ui/badges";
+import { ConfidenceMeter, DirectionBadge, PreviewDataBadge, StatusBadge } from "@/components/ui/badges";
 import { Avatar, Skeleton } from "@/components/ui/primitives";
 import { Button } from "@/components/ui/button";
 import { EmptyState, ErrorState } from "@/components/ui/states";
@@ -114,6 +115,7 @@ function DetailBody({
   const due = formatDue(c, now);
   const reasons = getReviewReasons(c, suggestion);
   const isPending = c.status === "pending";
+  const isPreview = isPreviewCommitment(c);
   const promisorLabel = c.direction === "you_owe" ? "You" : c.promisor;
   const beneficiaryLabel =
     c.direction === "they_owe" ? "You" : (c.beneficiary ?? "Not specified");
@@ -131,6 +133,7 @@ function DetailBody({
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge status={status} size="md" />
           <DirectionBadge direction={c.direction} className="h-7" />
+          {isPreview && <PreviewDataBadge className="h-7 px-2.5 text-[12px]" />}
         </div>
         <h1
           className={cn(
@@ -200,7 +203,9 @@ function DetailBody({
             <MessageBubble className="mt-4" message={message} quote={c.evidenceQuote} fallbackSender={c.promisor} />
             <p className="mt-4 flex items-center gap-1.5 text-xs text-ink-3">
               <ShieldCheck className="size-3.5" aria-hidden />
-              Quoted exactly from your imported conversation — never paraphrased.
+              {isPreview
+                ? "Fictional message from the simulated app-connection preview — not from your conversations."
+                : "Quoted exactly from your imported conversation — never paraphrased."}
             </p>
           </section>
 

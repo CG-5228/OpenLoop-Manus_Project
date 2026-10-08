@@ -108,3 +108,18 @@ export function ConfidenceMeter({
     </span>
   );
 }
+
+/** Marks fictional commitments from the simulated "Connect your apps" preview. */
+export function PreviewDataBadge({ className }: { className?: string }) {
+  return (
+    <span
+      title="Fictional data from the simulated app-connection preview — not from your conversations"
+      className={cn(
+        "inline-flex shrink-0 items-center rounded-full border border-line bg-subtle px-2 py-0.5 text-[11px] font-medium text-ink-3",
+        className,
+      )}
+    >
+      Preview data
+    </span>
+  );
+}
