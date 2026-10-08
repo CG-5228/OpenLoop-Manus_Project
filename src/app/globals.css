@@ -1,22 +1,143 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+/* ──────────────────────────────────────────────────────────────────────────
+   OpenLoop design system — tokens
+   Warm paper canvas · ink typography · highlighter accent · semantic status
+   ────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  /* Surfaces */
+  --color-canvas: #f7f6f2;
+  --color-surface: #ffffff;
+  --color-subtle: #f1efea;
+  --color-muted: #e9e6df;
+  --color-line: #e5e2da;
+  --color-line-strong: #d3cfc5;
+
+  /* Ink */
+  --color-ink: #1a1915;
+  --color-ink-2: #55514a;
+  --color-ink-3: #8a857c;
+  --color-ink-inverse: #fbfaf7;
+
+  /* Brand accent — the "highlighter" that marks promises in a conversation */
+  --color-highlight: #e3f56a;
+  --color-highlight-soft: #f2fbc4;
+  --color-highlight-ink: #3d4a00;
+
+  /* Semantic status */
+  --color-pending: #3563e9;
+  --color-pending-bg: #eef2fe;
+  --color-pending-fg: #2449b8;
+  --color-overdue: #e5484d;
+  --color-overdue-bg: #fdeeee;
+  --color-overdue-fg: #b42a2f;
+  --color-review: #f2a20c;
+  --color-review-bg: #fff4dc;
+  --color-review-fg: #94570a;
+  --color-done: #2f9e6a;
+  --color-done-bg: #e8f6ee;
+  --color-done-fg: #1d6f47;
+  --color-dismissed: #a29d93;
+  --color-dismissed-bg: #f1efea;
+  --color-dismissed-fg: #6b665e;
+
+  /* Elevation */
+  --shadow-card: 0 1px 2px rgb(26 25 21 / 0.04), 0 1px 1px rgb(26 25 21 / 0.02);
+  --shadow-card-hover: 0 6px 20px -8px rgb(26 25 21 / 0.14), 0 1px 3px rgb(26 25 21 / 0.06);
+  --shadow-pop: 0 18px 48px -12px rgb(26 25 21 / 0.24), 0 2px 8px rgb(26 25 21 / 0.06);
+
+  /* Motion */
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --animate-fade-in: fade-in 0.35s var(--ease-out-soft) both;
+  --animate-rise: rise 0.45s var(--ease-out-soft) both;
+  --animate-pop-in: pop-in 0.18s var(--ease-out-soft) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pop-in {
+    from { opacity: 0; transform: translateY(4px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes shimmer {
+    from { background-position: 200% 0; }
+    to { background-position: -200% 0; }
+  }
 }
 
-* {
-  box-sizing: border-box;
+@theme inline {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+  --font-display: var(--font-instrument-serif), ui-serif, Georgia, serif;
 }
 
-html {
-  background: var(--background);
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    @apply bg-canvas font-sans text-ink antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--color-highlight);
+    color: var(--color-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Marker-pen highlight used to show promises inside conversation text */
+  .highlight-mark {
+    background: linear-gradient(
+      104deg,
+      transparent 0.2em,
+      var(--color-highlight) 0.3em,
+      var(--color-highlight) calc(100% - 0.2em),
+      transparent calc(100% - 0.1em)
+    );
+    border-radius: 0.3em;
+    padding: 0.05em 0.2em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-subtle) 0%,
+      var(--color-muted) 40%,
+      var(--color-subtle) 80%
+    );
+    background-size: 200% 100%;
+    @apply animate-shimmer rounded-md;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
