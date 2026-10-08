@@ -1,0 +1,109 @@
+# Deploys OpenLoop to Vercel with the Vercel CLI.
+#
+# Why this exists: the Vercel project lives on a Hobby team, and Vercel's Git
+# integration only deploys commits authored by the team owner. Teammates'
+# commits and merges would be BLOCKED. CLI deployments authenticate with a
+# token instead, so every merge to main reaches production.
+#
+#   push to main               → production deployment
+#   pull request to main       → preview deployment (URL commented on the PR)
+#
+# One-time setup: add a repository secret named VERCEL_TOKEN
+# (create it at https://vercel.com/account/tokens, scope: "cg-5228's projects").
+# Until the secret exists, the job skips with a warning instead of failing.
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+  pull-requests: write
+
+env:
+  # Not secret: identifiers of the Vercel team and project "openloop".
+  VERCEL_ORG_ID: team_NAnK9bFjcsHXLUk41j5wZp9k
+  VERCEL_PROJECT_ID: prj_LZTAizsAddhjks3mr1t47lZx6Wkg
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  deploy:
+    name: ${{ github.event_name == 'pull_request' && 'Preview' || 'Production' }} deployment
+    # Fork PRs never receive secrets; skip them explicitly.
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: ${{ github.event_name == 'pull_request' && 'Preview' || 'Production' }}
+      url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Check for Vercel token
+        id: token
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "::warning title=Vercel deploy skipped::Add the VERCEL_TOKEN repository secret to enable deployments from GitHub Actions."
+            echo "present=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout
+        if: steps.token.outputs.present == 'true'
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        if: steps.token.outputs.present == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Vercel CLI
+        if: steps.token.outputs.present == 'true'
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel project settings
+        if: steps.token.outputs.present == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          TARGET: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
+        run: vercel pull --yes --environment="$TARGET" --token="$VERCEL_TOKEN"
+
+      - name: Build
+        if: steps.token.outputs.present == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          PROD_FLAG: ${{ github.event_name == 'pull_request' && '' || '--prod' }}
+        run: vercel build $PROD_FLAG --token="$VERCEL_TOKEN"
+
+      - name: Deploy
+        id: deploy
+        if: steps.token.outputs.present == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          PROD_FLAG: ${{ github.event_name == 'pull_request' && '' || '--prod' }}
+        run: |
+          url="$(vercel deploy --prebuilt $PROD_FLAG --token="$VERCEL_TOKEN")"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+          echo "### Deployed to Vercel" >> "$GITHUB_STEP_SUMMARY"
+          echo "$url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Comment preview URL on the pull request
+        if: steps.token.outputs.present == 'true' && github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          URL: ${{ steps.deploy.outputs.url }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          gh pr comment "${{ github.event.pull_request.number }}" --repo "${{ github.repository }}" \
+            --body "Preview deployment for \`${SHA:0:7}\`: $URL"
