@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     template: "%s · OpenLoop",
   },
   description:
-    "OpenLoop finds the promises buried in your conversations and tracks who owes what to whom — with the original message as evidence.",
+    "OpenLoop is being built to read connected emails, university websites and tickets, turning important dates and commitments into source-backed calendar entries.",
 };
 
 export const viewport: Viewport = {

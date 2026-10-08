@@ -17,43 +17,43 @@ import { ROUTES } from "@/lib/ui/routes";
 const STEPS = [
   {
     n: "01",
-    title: "Import a conversation",
-    body: "Paste a chat, drop in a screenshot or upload a .txt export from WhatsApp, Discord, Telegram or email. Tell OpenLoop which sender is you.",
+    title: "Connect your sources",
+    body: "The planned experience starts with the email accounts, university websites and tickets you choose to connect — without copying and pasting text.",
     Icon: Upload,
   },
   {
     n: "02",
-    title: "AI finds the promises",
-    body: "OpenLoop separates real commitments from maybes and small talk, then works out who owes what, to whom, and by when.",
+    title: "Find what matters automatically",
+    body: "OpenLoop will look for assignment deadlines, events, bookings and commitments, keeping the original source attached to every item.",
     Icon: Sparkles,
   },
   {
     n: "03",
-    title: "Close the loop",
-    body: "Track deadlines, nudge with a follow-up you've approved, and confirm when a later message shows a promise was kept.",
+    title: "Bring it into your calendar",
+    body: "Planned calendar sync will turn dated items into calendar entries, so your next deadline or event is in one place. Unclear details stay flagged for review.",
     Icon: CircleCheck,
   },
 ];
 
 const FEATURES = [
   {
-    title: "A two-way ledger",
-    body: "What you owe and what you're owed, side by side. Not just another one-sided to-do list.",
+    title: "Emails that become actions",
+    body: "Planned email connections will surface deadlines and commitments from the accounts you authorise — not just the messages you remember to copy.",
     Icon: ArrowDownLeft,
   },
   {
-    title: "Evidence on every item",
-    body: "Each commitment links to the exact message it came from. Nothing is paraphrased, and deadlines are never invented.",
+    title: "University updates in one place",
+    body: "Planned website monitoring will help catch assignment dates, timetable changes and university events from the pages you choose.",
     Icon: Quote,
   },
   {
-    title: "Smart completion",
-    body: "When James writes “here's the report I promised”, OpenLoop suggests closing the loop. You always make the call.",
+    title: "Tickets with a place in your day",
+    body: "Planned ticket reading will pick out event and booking details, ready to become useful calendar entries.",
     Icon: Sparkles,
   },
   {
-    title: "Follow-ups you approve",
-    body: "Draft a friendly nudge in one click, edit it, copy it. OpenLoop never sends a message on your behalf.",
+    title: "A calendar backed by the source",
+    body: "Planned calendar entries will link back to the original email, university page or ticket, so you can check the details instead of trusting a guess.",
     Icon: MessageSquareText,
   },
 ];
@@ -87,23 +87,24 @@ export default function LandingPage() {
       <section className="mx-auto max-w-[1160px] px-5 pb-16 pt-14 text-center sm:px-8 sm:pb-24 sm:pt-20">
         <p className="mx-auto inline-flex animate-rise items-center gap-2 rounded-full border border-line bg-surface px-3 py-1 text-[13px] font-medium text-ink-2 shadow-card">
           <span className="size-1.5 rounded-full bg-[#b9cf1f]" aria-hidden />
-          AI commitment tracking for everyday conversations
+          Our next chapter: automatic life admin
         </p>
         <h1 className="mx-auto mt-6 max-w-[900px] animate-rise font-display text-[46px] leading-[1.02] tracking-[-0.02em] text-ink [animation-delay:60ms] sm:text-[72px] lg:text-[84px]">
-          Never forget what you owe — or what you&apos;re{" "}
+          Less chasing details. More knowing what&apos;s{" "}
           <em className="relative whitespace-nowrap italic">
-            <span className="relative z-10">owed.</span>
+            <span className="relative z-10">next.</span>
             <span aria-hidden className="absolute inset-x-[-0.06em] bottom-[0.08em] -z-0 h-[0.32em] rounded-sm bg-highlight" />
           </em>
         </h1>
         <p className="mx-auto mt-6 max-w-[620px] animate-rise text-[17px] leading-relaxed text-ink-2 [animation-delay:120ms] sm:text-[19px]">
-          OpenLoop reads the conversations you import, finds the promises buried inside them, and keeps a
-          two-way ledger of who owes what to whom — with the original message as proof.
+          OpenLoop is being built to automatically read the emails, university websites and tickets you
+          connect, find important deadlines, events and commitments, and add them to your calendar —
+          with the original source as proof.
         </p>
         <div className="mt-9 flex animate-rise flex-col items-center justify-center gap-3 [animation-delay:180ms] sm:flex-row">
           <Button asChild variant="primary" size="lg" className="w-full sm:w-auto">
             <Link href={ROUTES.import}>
-              Try sample conversation <ArrowRight />
+              Explore the current demo <ArrowRight />
             </Link>
           </Button>
           <Button asChild variant="secondary" size="lg" className="w-full sm:w-auto">
@@ -111,10 +112,11 @@ export default function LandingPage() {
           </Button>
         </div>
         <p className="mt-4 animate-rise text-[13px] text-ink-3 [animation-delay:220ms]">
-          No sign-up · Fictional sample included · Nothing is ever sent for you
+          Automatic source connections and calendar sync are planned. Today&apos;s demo analyses text you provide.
         </p>
 
         <div className="mt-14 animate-rise [animation-delay:260ms] sm:mt-20">
+          <p className="mb-4 text-[13px] text-ink-3">Current demo: evidence-backed commitment tracking</p>
           <ProductPreview />
         </div>
       </section>
@@ -124,13 +126,13 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1160px] px-5 py-16 sm:px-8 sm:py-24">
           <p className="max-w-[920px] font-display text-[32px] leading-[1.15] tracking-[-0.01em] sm:text-[48px]">
             <span className="text-ink-3">Todo apps remember the tasks you enter.</span>{" "}
-            <span className="text-ink">OpenLoop remembers the promises you never entered.</span>
+            <span className="text-ink">Our goal: OpenLoop finds the dates and commitments you never entered.</span>
           </p>
           <div className="mt-10 grid gap-6 border-t border-line pt-8 text-sm text-ink-2 sm:grid-cols-3">
             {[
-              ["“I'll send you the report tomorrow.”", "Becomes a tracked promise owed to you, due tomorrow."],
-              ["“Can you transfer me €20 tonight?” — “Sure.”", "Becomes something you owe, with the message as proof."],
-              ["“I might send you something next week.”", "Stays out of your list. Maybes aren't promises."],
+              ["An assignment deadline on your university website.", "Planned: capture the due date and link to the original page."],
+              ["A ticket with an event date and venue.", "Planned: put the event details into your calendar."],
+              ["“I'll send you the report tomorrow.”", "Keep the promise and its evidence visible alongside your plans."],
             ].map(([q, a]) => (
               <div key={q}>
                 <p className="font-medium text-ink">{q}</p>
@@ -144,9 +146,9 @@ export default function LandingPage() {
       {/* How it works */}
       <section id="how" className="mx-auto max-w-[1160px] scroll-mt-20 px-5 py-20 sm:px-8 sm:py-28">
         <div className="max-w-[640px]">
-          <p className="font-mono text-xs uppercase tracking-[0.14em] text-ink-3">How it works</p>
+          <p className="font-mono text-xs uppercase tracking-[0.14em] text-ink-3">The planned experience</p>
           <h2 className="mt-3 font-display text-[38px] leading-[1.08] tracking-[-0.015em] text-ink sm:text-[52px]">
-            From buried promise to closed loop in three steps.
+            From scattered information to one calendar.
           </h2>
         </div>
         <ol className="mt-12 grid gap-4 md:grid-cols-3">
@@ -170,17 +172,17 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1160px] px-5 py-20 sm:px-8 sm:py-28">
           <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
             <div>
-              <p className="font-mono text-xs uppercase tracking-[0.14em] text-ink-3">Built for trust</p>
+              <p className="font-mono text-xs uppercase tracking-[0.14em] text-ink-3">What we&apos;re building next</p>
               <h2 className="mt-3 font-display text-[38px] leading-[1.08] tracking-[-0.015em] text-ink sm:text-[52px]">
-                Accountability without the awkwardness.
+                Your sources. Your schedule. Less manual work.
               </h2>
               <p className="mt-5 max-w-[440px] text-[16px] leading-relaxed text-ink-2">
-                OpenLoop is careful by design. Uncertain results are flagged for review, every item carries its
-                evidence, and nothing is marked done — or sent — without you.
+                We&apos;re moving beyond manual imports toward sources you authorise and a calendar that
+                stays useful. The aim is less copying and pasting, with source evidence and review for uncertain details.
               </p>
               <p className="mt-6 inline-flex items-center gap-2 rounded-full border border-line bg-canvas px-3 py-1.5 text-[13px] text-ink-2">
                 <ShieldCheck className="size-4 text-done" aria-hidden />
-                Your imported conversations are never shared publicly.
+                No automatic account or calendar access in the current demo.
               </p>
             </div>
             <div className="grid gap-px overflow-hidden rounded-[18px] border border-line bg-line sm:grid-cols-2">
@@ -209,23 +211,24 @@ export default function LandingPage() {
           />
           <LogoMark className="relative mx-auto size-12" />
           <h2 className="relative mx-auto mt-6 max-w-[640px] font-display text-[40px] leading-[1.05] tracking-[-0.015em] text-ink-inverse sm:text-[56px]">
-            Close your open loops.
+            Make room for what&apos;s next.
           </h2>
           <p className="relative mx-auto mt-4 max-w-[460px] text-[16px] leading-relaxed text-ink-inverse/65">
-            Import one conversation and see every promise inside it in under a minute.
+            Explore today&apos;s commitment-tracking demo while we build automatic email, university-site,
+            ticket and calendar connections.
           </p>
           <Button asChild variant="highlight" size="lg" className="relative mt-8">
             <Link href={ROUTES.import}>
-              Get started <ArrowRight />
+              Explore the demo <ArrowRight />
             </Link>
           </Button>
         </div>
       </section>
 
       <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-[1160px] flex-col items-center justify-between gap-4 px-5 py-8 text-[13px] text-ink-3 sm:flex-row sm:px-8">
+        <div className="mx-auto flex max-w-[1160px] flex-col items-center justify-between gap-4 px-5 py-8 text-[13px] text-ink-3 sm:flex-row">
           <Logo className="opacity-80" />
-          <p className="text-center">Demo uses synthetic conversations. OpenLoop never sends messages automatically.</p>
+          <p className="text-center">Demo uses synthetic conversations. Automatic source reading and calendar sync are planned, not connected.</p>
           <p>© 2026 OpenLoop</p>
         </div>
       </footer>
