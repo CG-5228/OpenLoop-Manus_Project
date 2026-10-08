@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Commitment, Message } from "@/types/openloop";
 import { useDashboardData } from "@/components/providers/dashboard-data-provider";
-import { ApiError, extractCommitments } from "@/lib/ui/api-client";
+import { ApiError, extractCommitments, type ExtractionMode } from "@/lib/ui/api-client";
 import { ROUTES } from "@/lib/ui/routes";
 
 /**
@@ -45,8 +45,9 @@ export function useImportFlow() {
       setPhase({ kind: "analysing", messageCount: payload.messages.length });
 
       let found: Commitment[];
+      let mode: ExtractionMode;
       try {
-        found = await extractCommitments(payload, ac.signal);
+        ({ commitments: found, mode } = await extractCommitments(payload, ac.signal));
       } catch (cause) {
         if (ac.signal.aborted) return;
         setPhase({
@@ -69,7 +70,7 @@ export function useImportFlow() {
       const youOwe = found.filter((c) => c.direction === "you_owe").length;
       const theyOwe = found.filter((c) => c.direction === "they_owe").length;
       toast.success(`Found ${found.length} commitment${found.length === 1 ? "" : "s"}`, {
-        description: `${youOwe} you owe · ${theyOwe} owed to you`,
+        description: `${youOwe} you owe · ${theyOwe} owed to you${mode === "demo" ? " · demo extraction" : ""}`,
       });
       router.push(ROUTES.dashboard);
     },

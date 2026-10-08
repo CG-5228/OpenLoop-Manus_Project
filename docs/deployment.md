@@ -31,11 +31,11 @@ Until the secret exists, the Deploy workflow skips with a warning rather than fa
 
 ## Environment variables
 
-The UI needs none. When Member 3's extraction endpoint and Member 4's follow-up endpoint land, add their **server-only** secrets (for example `OPENAI_API_KEY`, never prefixed `NEXT_PUBLIC_`) in Vercel → Project → Settings → Environment Variables for **Production** and **Preview**, then redeploy.
+None are required. Without `OPENAI_API_KEY`, the extraction endpoint runs **demo extraction** (rule-based, labelled in the UI) and data is stored in the visitor's browser. To switch to AI extraction later, add `OPENAI_API_KEY` (server-only, never prefixed `NEXT_PUBLIC_`; optional `OPENAI_MODEL`) in Vercel → Project → Settings → Environment Variables for **Production** and **Preview**, then redeploy. `OPENLOOP_EXTRACTION_MODE=ai|demo` forces a mode.
 
 ## Preview access
 
-Preview deployments use Vercel's default deployment protection (Vercel login required). The production URL is public. To share a preview with someone outside the team, create a shareable link from the deployment page in Vercel.
+Deployment protection (Vercel Authentication) is **disabled** for this project, so the production URL and every deployment or preview URL open for anyone with the link, with no Vercel login. Re-enable it in Vercel → Project → Settings → Deployment Protection if previews ever need to be private.
 
 ## Commit identity
 
