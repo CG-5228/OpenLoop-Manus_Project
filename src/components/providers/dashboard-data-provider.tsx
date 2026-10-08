@@ -63,6 +63,9 @@ function useDemoAdapter(): DashboardDataApi {
   const [suggestions, setSuggestions] = useState<CompletionSuggestion[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loadKey, setLoadKey] = useState(0);
+  // True once real (AI-extracted) results have been added. The first real import
+  // replaces the synthetic fixtures so real results are never mixed with demo data.
+  const [hasImported, setHasImported] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -84,6 +87,7 @@ function useDemoAdapter(): DashboardDataApi {
       setCommitments(data.commitments);
       setSuggestions(data.suggestions);
       setMessages(data.messages);
+      setHasImported(false);
       setState("ready");
     })();
     return () => {
@@ -111,11 +115,18 @@ function useDemoAdapter(): DashboardDataApi {
       getMessage: (id) => messageMap.get(id),
       reload: () => setLoadKey((k) => k + 1),
       addCommitments: (incoming, newMessages = []) => {
-        setCommitments((list) => {
-          const ids = new Set(list.map((c) => c.id));
-          return [...incoming.filter((c) => !ids.has(c.id)), ...list];
-        });
-        if (newMessages.length) setMessages((list) => [...list, ...newMessages]);
+        if (!hasImported) {
+          setCommitments(incoming);
+          setSuggestions([]);
+          setMessages(newMessages);
+          setHasImported(true);
+        } else {
+          setCommitments((list) => {
+            const ids = new Set(list.map((c) => c.id));
+            return [...incoming.filter((c) => !ids.has(c.id)), ...list];
+          });
+          if (newMessages.length) setMessages((list) => [...list, ...newMessages]);
+        }
         setState("ready");
       },
       markCompleted: (id) => {
@@ -143,7 +154,7 @@ function useDemoAdapter(): DashboardDataApi {
         setSuggestions([]);
       },
     };
-  }, [state, error, commitments, suggestions, messages, patch, dropSuggestion]);
+  }, [state, error, commitments, suggestions, messages, hasImported, patch, dropSuggestion]);
 }
 
 /**
