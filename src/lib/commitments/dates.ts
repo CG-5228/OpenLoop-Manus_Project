@@ -5,7 +5,9 @@
  *   - Full ISO timestamps: "2026-10-09T17:00:00.000Z", "2026-10-09T17:00:00+01:00"
  *   - Date-only ISO:       "2026-10-09"   → treated as END of that local day
  *   - datetime-local:      "2026-10-09T17:00" → interpreted in local time
- * Everything is normalised to a full ISO string (toISOString) when stored.
+ * Timestamps are normalised to a full ISO string (toISOString) when stored.
+ * Valid date-only values are stored unchanged, so the UI never invents a time
+ * (such as "23:59") or shifts the calendar day for users away from UTC.
  */
 
 import type { Commitment } from "./types";
@@ -41,7 +43,8 @@ export function parseDueDate(dueAt: string | null | undefined): Date | null {
 }
 
 /**
- * Normalise a deadline for storage. Returns a full ISO string or null.
+ * Normalise a deadline for storage. Returns a full ISO string, a validated
+ * date-only "YYYY-MM-DD" string, or null.
  * Throws InvalidDeadlineError for non-empty values that cannot be parsed —
  * we never silently invent or drop a deadline the user typed.
  */
@@ -55,6 +58,8 @@ export function normalizeDeadlineInput(input: string | Date | null | undefined):
   if (!input.trim()) return null;
   const parsed = parseDueDate(input);
   if (!parsed) throw new InvalidDeadlineError(input);
+  const trimmed = input.trim();
+  if (DATE_ONLY.test(trimmed)) return trimmed;
   return parsed.toISOString();
 }
 
