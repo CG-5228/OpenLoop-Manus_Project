@@ -50,6 +50,12 @@ describe("normalizeDeadlineInput", () => {
     expect(normalizeDeadlineInput("  ")).toBeNull();
   });
 
+  it("keeps valid date-only deadlines as calendar dates (no invented time)", () => {
+    expect(normalizeDeadlineInput("2026-10-08")).toBe("2026-10-08");
+    expect(normalizeDeadlineInput(" 2026-10-08 ")).toBe("2026-10-08");
+    expect(() => normalizeDeadlineInput("2026-02-31")).toThrow(InvalidDeadlineError);
+  });
+
   it("throws on garbage instead of silently dropping it", () => {
     expect(() => normalizeDeadlineInput("next friday")).toThrow(InvalidDeadlineError);
   });
