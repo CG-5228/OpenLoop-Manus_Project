@@ -7,6 +7,7 @@ import { ROUTES } from "@/lib/ui/routes";
 import { Button } from "@/components/ui/button";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { ImporterSlot } from "@/components/import-flow/importer-slot";
+import { ConnectedSourcesDemo } from "@/components/import-flow/connected-sources-demo";
 import { useImportFlow, type ImportPhase } from "@/components/import-flow/use-import-flow";
 import type { ExtractionMode } from "@/lib/ui/api-client";
 
@@ -64,8 +65,9 @@ export function ImportView({ extractionMode }: { extractionMode: ExtractionMode 
       <div className="mt-9 grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px] lg:gap-8">
         <section aria-live="polite" aria-busy={phase.kind === "analysing"}>
           {/* Kept mounted so the pasted conversation survives an error or a retry. */}
-          <div hidden={phase.kind !== "idle"}>
+          <div hidden={phase.kind !== "idle"} className="space-y-6">
             <ImporterSlot onImport={flow.onImport} extractionMode={extractionMode} />
+            <ConnectedSourcesDemo />
           </div>
 
           {phase.kind === "analysing" && (
