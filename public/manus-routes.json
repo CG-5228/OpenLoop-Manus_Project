@@ -23,6 +23,10 @@
     {
       "path": "/dev/commitment-test",
       "title": "Live commitment test"
+    },
+    {
+      "path": "/dev/email-selection",
+      "title": "Email selection test"
     }
   ]
 }

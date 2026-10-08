@@ -76,6 +76,7 @@ export function CommitmentTestPlayground() {
         <p className="max-w-3xl text-slate-600">Enter a conversation or email body and see who promised what, to whom, and when—with the original words as evidence.</p>
         <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900"><strong>Real AI processing.</strong> Clicking Find commitments sends your text to this test server and its configured AI provider. Use fictional text. This page does not save conversations, connect to Gmail or send messages. AI can misinterpret commitments; review the evidence. This is a temporary integration test, not the completed product.</p>
         <a href="/dev/text-parser" className="text-sm font-medium text-indigo-700 underline underline-offset-4">Parser-only test: no AI request</a>
+        <a href="/dev/email-selection" className="ml-4 text-sm font-medium text-indigo-700 underline underline-offset-4">Email list: filter, select and analyse</a>
       </header>
       <div className="flex flex-col items-start gap-8 lg:flex-row">
         <form onSubmit={analyse} className="w-full space-y-4 lg:w-1/2">

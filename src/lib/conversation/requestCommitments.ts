@@ -10,6 +10,7 @@ export function isCommitmentPreview(value: unknown): value is Commitment {
   if (!value || typeof value !== "object") return false;
   const item = value as Record<string, unknown>;
   return ["id", "title", "promisor", "evidenceQuote", "sourceMessageId"].every(key => typeof item[key] === "string")
+    && typeof item.evidenceQuote === "string" && item.evidenceQuote.trim().length > 0
     && (item.beneficiary === null || typeof item.beneficiary === "string")
     && (item.dueAt === null || typeof item.dueAt === "string")
     && ["you_owe", "they_owe", "unknown"].includes(String(item.direction))
@@ -36,7 +37,7 @@ export async function requestCommitments(
   if (!response.ok) {
     const record = data && typeof data === "object" ? data as Record<string, unknown> : {};
     const error = record.error && typeof record.error === "object" ? record.error as Record<string, unknown> : {};
-    throw new Error(typeof error.message === "string" ? error.message : "AI analysis failed. Please try again.");
+    throw new Error(typeof error.message === "string" && error.message.trim() ? error.message : "AI analysis failed. Please try again.");
   }
   const items = data && typeof data === "object" ? (data as Record<string, unknown>).commitments : undefined;
   if (!Array.isArray(items) || !items.every(isCommitmentPreview)) {

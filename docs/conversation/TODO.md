@@ -37,3 +37,13 @@ The team merged original PR #1 while this test was being built, and advanced `fe
 - [ ] Connect and test real OCR after the P0 text-to-AI flow is working. PDF and richer chat-format parsing remain optional.
 
 Post-integration verification also passed: 34/34 module tests plus shared lint, TypeScript and the complete Next.js build including the team's new dashboard/import routes and Member 3's actual endpoint. The live-test server remains the isolated temporary test runtime described above.
+
+## Email-list selection and filtering
+
+- [x] Import a pasted or locally uploaded structured email list, preserve sender/recipient/subject/body/date/source IDs, validate limits and provide a fictional sample.
+- [x] Provide search, sender and date-range filters, manual checkboxes and select/deselect visible; hidden and unselected emails are not included in manual analysis.
+- [x] Provide AI-select relevant emails using the real existing endpoint, selecting emails with returned evidence-backed commitments rather than a keyword-only guess.
+- [x] Group extracted data by its original email, show evidence/direction/deadlines/JSON and explicit loading/error/empty/stale states.
+- [x] Disclose server/provider processing for AI actions, no Gmail connection, no persistence, no automatic messaging; verify filters and real relevance selection and provide the updated live test URL.
+
+The real-model run selected `report` and `slides`, leaving newsletter/tentative emails unselected. The manual filtered run sent only `report`, not hidden selected `slides`; checkbox changes flagged stale output. Import/filtering made no AI requests. Reviewed blank-error/evidence regressions and all 46 module tests passed, together with shared and runtime lint/TypeScript/build checks. Import holds up to 100 emails; each AI action handles up to 10 independently with at most two active requests. This is a temporary test, not permanent deployment or a live inbox connector.

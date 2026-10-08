@@ -1,0 +1,42 @@
+[
+  {
+    "id": "report",
+    "from": "James",
+    "to": [
+      "Me"
+    ],
+    "subject": "Report for review",
+    "body": "Hi Me, I'll email you the revised report tomorrow. Thanks!",
+    "sentAt": "2026-10-08T10:00:00Z"
+  },
+  {
+    "id": "newsletter",
+    "from": "Newsletter",
+    "to": [
+      "Me"
+    ],
+    "subject": "Weekly news",
+    "body": "Here are this week's articles and product updates. Enjoy reading!",
+    "sentAt": "2026-10-08T09:00:00Z"
+  },
+  {
+    "id": "slides",
+    "from": "Me",
+    "to": [
+      "Sarah"
+    ],
+    "subject": "Presentation slides",
+    "body": "Hi Sarah, I'll send Sarah the final slides by Friday.",
+    "sentAt": "2026-10-08T11:00:00Z"
+  },
+  {
+    "id": "tentative",
+    "from": "Alex",
+    "to": [
+      "Me"
+    ],
+    "subject": "Weekend ideas",
+    "body": "I might look at the design sometime. Maybe we could discuss it next week.",
+    "sentAt": null
+  }
+]

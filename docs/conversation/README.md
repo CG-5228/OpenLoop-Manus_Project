@@ -146,3 +146,7 @@ The current temporary integration server combines the Member 2 UI with unchanged
 Verified with actual model calls through the production test runtime: the shared sample returned four commitments (two `you_owe`, two `they_owe`) with exact evidence and the tentative statement excluded; a novel whole email from James returned one `they_owe` report promise due `2026-10-09` from reference date `2026-10-08`; small talk/tentative plans returned `{ commitments: [] }`. All 34 Member 2 module tests and both source/integration lint, TypeScript and production builds passed.
 
 Temporary live test: https://3001-irmxsi7nd463jgidio6kb-2835a6f1.us4.manus.computer/dev/commitment-test . The managed static homepage remains parser-only and is not a permanently published live-AI service.
+
+## Email lists: filtering and automatic selection
+
+`/dev/email-selection` mounts `EmailSelectionPlayground`. It accepts pasted/local uploaded `.txt` blocks or `.json` email arrays, supplies search/sender/date filters and visible-email checkboxes, and uses the existing AI endpoint per email to select records containing commitments. Manual analysis sends selected visible emails only. Output is grouped by original email with exact evidence and JSON; failed analyses are not silently treated as irrelevant. See `EMAIL_SELECTION.md` for schema, privacy, 10-email action limit and measured real-model/browser results. This is manually imported data, not a Gmail connection.
