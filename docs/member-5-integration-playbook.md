@@ -46,6 +46,8 @@ Member 5 is the **release owner** for OpenLoop. The role is not primarily to bui
 4. Merge completed slices as they pass—not in a last-minute five-way merge.
 5. When two PRs touch the same file, integrate the lower-risk contract or backend PR first, rebase the other author onto `main`, then resolve together.
 6. Member 5 watches the PR queue and status at each integration checkpoint with `gh pr list`, `gh pr view`, `git fetch origin`, and the build command. Do not overwrite a teammate’s branch to “fix” it; leave review notes or create a narrowly scoped integration commit after merge.
+7. **No self-merge or auto-merge.** Every PR, including Member 5’s, requests review from the other members. A teammate other than the author merges it, and only after approval and a green `npm run check`. Member 5 verifies each PR, comments on it, and requests reviews, but never merges.
+8. To propose a fix on a teammate’s branch, open a separate branch and target a PR at their feature branch so the owner decides whether to accept it. Never push directly to another member’s branch.
 
 ## Integration cadence
 
@@ -95,6 +97,7 @@ It returns `{ suggestions: CompletionSuggestion[] }`. It compares later messages
 ## Release-owner stop rules
 
 - Do not start P2 resolution while any P0 feature is unmerged, failing, or unverified.
+- Do not merge any PR yourself; request review from the other members and let one of them merge.
 - Do not claim real AI if a provider is unavailable.
 - Do not expose API keys or commit `.env.local`.
 - Do not add accounts, platform syncs, automatic messaging, or other out-of-scope work.

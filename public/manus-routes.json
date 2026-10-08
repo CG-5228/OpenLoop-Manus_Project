@@ -5,6 +5,14 @@
       "title": "OpenLoop"
     },
     {
+      "path": "/dashboard",
+      "title": "Dashboard"
+    },
+    {
+      "path": "/import",
+      "title": "Add a conversation"
+    },
+    {
       "path": "/dev/conversation",
       "title": "Conversation parser test"
     },
