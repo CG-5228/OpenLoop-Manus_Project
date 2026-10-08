@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-require-imports -- Standalone CommonJS Node test entry point. */
 const assert = require("node:assert/strict");
 const path = require("node:path");
 const { createRequire } = require("node:module");
 const { test } = require("node:test");
+/* eslint-enable @typescript-eslint/no-require-imports */
 
 // Compile the module first. No temporary contract or dependencies belong in the app repo.
 const buildRoot = process.env.CONVERSATION_BUILD_DIR;

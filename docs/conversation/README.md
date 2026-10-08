@@ -2,7 +2,7 @@
 
 **Branch:** `feature/conversation`
 
-**Status:** Module scaffold; not a standalone application or a verified deployed feature.
+**Status:** Text-import module scaffold verified against the shared application foundation; not yet mounted or verified end-to-end/deployed.
 
 ## Ownership and file structure
 
@@ -33,7 +33,7 @@ docs/conversation/
   README.md
 ```
 
-The module imports `Message` from **`src/types/openloop.ts`**, which Member 5 owns. This branch intentionally does not create the shared type file, root `package.json`, Next.js configuration, app routes or dashboard. React and Tailwind come from the shared starter when it is available.
+The module imports `Message` from **`src/types/openloop.ts`**, which Member 5 owns. The actual shared starter and types are now on `main` and incorporated into this feature branch. Member 2 does not author competing types, app-wide configuration, routes or a dashboard; it uses the coordinator's React/Tailwind application dependencies.
 
 ## Host-facing interface
 
@@ -84,7 +84,7 @@ OCR output replaces the editable input, retains source `image`, and must be revi
 
 ## Shared-contract dependency
 
-The current `PROJECT_BRIEF.md` and README specify source `"paste" | "txt" | "image"` and path `src/types/openloop.ts`. The older `BRIEF.md` uses `"text"` and lists `"pdf"`. This branch follows the **newer shared brief** and derives source types from the shared `Message` type rather than defining another Message interface. Member 5 still needs to add the actual shared file and application starter before this module can participate in an application build.
+The current `PROJECT_BRIEF.md`, README and actual shared source file specify source `"paste" | "txt" | "image"` and path `src/types/openloop.ts`. The older `BRIEF.md` uses `"text"` and lists `"pdf"`. This branch follows the **newer canonical contract** and derives source types from the shared `Message`. The foundation gate is now cleared: module tests and the shared lint/typecheck/production-build checks passed using canonical types. The importer still needs to be mounted and connected to live AI.
 
 ## Repeatable scaffold check
 
@@ -114,3 +114,7 @@ python3 tests/conversation/check-scaffold.py --toolchain-dir "$TOOLS"
 These are **validation-only** dependency versions, not changes to the eventual app manifest. The test file can also run against equivalent compiled CommonJS output via `CONVERSATION_BUILD_DIR`; the compiled root must contain `src/lib/conversation/*.js` and `src/components/import/*.js`, and resolve React/React DOM.
 
 Tests cover pure parsing, timestamp handling, upload validation, UTF-8 reading, missing-OCR errors, a synthetic injected OCR adapter and server-rendered component smoke checks. Synthetic OCR tests do not establish real OCR quality. Static rendering does not establish browser interaction, end-to-end AI integration or a full Next.js build. Run the shared application's actual build and live import journey after integration.
+
+## Current handoffs
+
+See [Member 2 progress](./MEMBER_2_PROGRESS.md) for verified status and remaining work, and [Member 3 extraction handoff](./MEMBER_3_HANDOFF.md) for the exact payload, shared types, synthetic request and AI endpoint requirements.

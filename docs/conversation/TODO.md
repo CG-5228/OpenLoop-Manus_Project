@@ -1,20 +1,22 @@
 # Member 2 outcomes
 
-## Module scaffold
+## Module implementation and foundation compatibility
 
-- [x] Work on `feature/conversation`, using only Member 2's ownership paths, with no new standalone application or edits to other features.
-- [x] Provide `ConversationImporter({ onImport })` for pasted text and a fictional sample, with editable content, structured preview, multiple speakers, current-user identification and optional explicit reference date.
-- [x] Provide `.txt` upload validation and UTF-8 reading, rejecting unsupported, empty, binary, oversized or incorrectly encoded inputs with clear errors.
-- [x] Parse content into the shared `Message[]` contract, preserving sender, content, conversation ID, original source and known timestamps; use `null` rather than inventing missing/ambiguous dates.
-- [x] Provide an explicit OCR adapter boundary; disable screenshots until real OCR is supplied, and keep extracted text editable before analysis.
-- [x] Document dependencies and module exports, and include synthetic tests and a repeatable isolated check without adding an application starter or competing shared types.
+- [x] Work on `feature/conversation`, using only Member 2's feature paths and preserving other members' modules.
+- [x] Provide `ConversationImporter({ onImport })` for pasted text and the fictional sample, with editable content, structured preview, multiple speakers, user identification and optional explicit reference date.
+- [x] Provide `.txt` validation and UTF-8 reading with clear unsupported/empty/binary/size/encoding errors.
+- [x] Parse into canonical `Message[]`, preserving sender/content/IDs/source and known timestamps; never invent ambiguous dates.
+- [x] Provide an honest optional OCR adapter boundary and editable extracted text; disable screenshots without real OCR.
+- [x] Document exports, source boundaries and tests; provide Member 3's exact extraction handoff.
+- [x] Bring Member 5's actual app starter and `src/types/openloop.ts` from `main` into this branch, without redefining types.
+- [x] Pass 25 module tests with canonical types and the shared lint, TypeScript and Next.js production-build checks.
 
-The checked items represent **source scaffolding**, supported by isolated TypeScript and synthetic/SSR tests. They do not establish a complete app build, live browser acceptance, deployed AI or real OCR quality. Delivery follows the repository's commit/push/pull-request workflow; no merge into `main` is performed by Member 2.
+These checks establish implementation/build compatibility, not browser acceptance, real OCR, deployed inference or a complete public demo. PR #1 remains a draft; no merge into `main` is performed by Member 2.
 
-## Subsequent integration — not completed by the scaffold
+## Remaining integration
 
-- [ ] Member 5 supplies the Next.js/React/Tailwind starter and canonical `src/types/openloop.ts`, using the newer shared brief's `"txt"` source contract.
-- [ ] Member 1 mounts `ConversationImporter` in the shared application and aligns its styling with the dashboard.
-- [ ] The host callback sends structured messages, `currentUserLabel` and optional `referenceDate` to Member 3's real extraction endpoint, preserving server errors and loading states.
-- [ ] Connect and verify a real OCR implementation, including preview/correction of screenshot text.
-- [ ] Verify the integrated application build and end-to-end import workflow. PDF support is optional and not implemented here.
+- [ ] Member 1 mounts `ConversationImporter` and aligns styling with the dashboard.
+- [ ] Wire the host callback to Member 3's real extraction endpoint, preserving `messages`, `currentUserLabel`, optional `referenceDate`, loading and errors.
+- [ ] Members 1/4/5 connect returned commitments to persistence/dashboard and verify the full sample/custom import journey in a browser, including phone layout.
+- [ ] Member 5 coordinates review/merge and verifies the deployed flow.
+- [ ] Connect and test a real OCR implementation if the P0 text-to-AI flow is working. PDF and richer chat-format parsing remain optional.

@@ -1,54 +1,36 @@
-# Member 2 — Conversation import scaffold
+# Member 2 — Conversation import module
 
-## Scope
+## Scope and current foundation
 
-Create `feature/conversation` from the current `origin/main` and add only Member 2's module. The team added `PROJECT_BRIEF.md` during development; the feature branch incorporates that main-branch update and follows its component/data contracts. The repository still has no Next.js starter. Do not generate another app, add app routes, replace root configuration, implement AI extraction, or merge into `main`.
+Work only on `feature/conversation`. Follow the README's ownership paths `src/components/import/` and `src/lib/conversation/`, preserving the app page/dashboard, AI routes and storage owned by teammates. Initial scaffolding was created before the shared application existed. On 8 October 2026, Member 5's starter/types reached `origin/main` at `787ae02d14faaa44e27970f5b37d002c7fdfa104`; incorporate that baseline into this feature branch rather than generating another app.
 
-Follow the README's ownership paths: `src/components/import/` and `src/lib/conversation/`. Import `Message` from coordinator-owned `src/types/openloop.ts`; do not create a competing shared definition. The newer `PROJECT_BRIEF.md` and README use source `"txt"`; the older `BRIEF.md` uses `"text"` and lists `"pdf"`. This scaffold follows the newer contract.
+Import the canonical `Message` from `src/types/openloop.ts`. The newer shared brief, README and actual type file agree on `"paste" | "txt" | "image"`; do not follow the older brief's `"text"`/`"pdf"` mismatch. Shared configuration/types are inherited from Member 5, not reauthored by Member 2.
 
 ## Implementation
 
-Provide a composable `ConversationImporter` client component with separate text input, file upload, sender selection, optional conversation date, structured preview and a state hook. Its host callback receives `{ messages, currentUserLabel, referenceDate? }`, matching the new shared brief. Member 3, not this module, implements AI extraction; Member 1 controls the host page and dashboard.
+Provide `ConversationImporter({ onImport })` with separate editable text, file input, sender selection, optional conversation date, message preview and state hook. Its async callback receives `{ messages, currentUserLabel, referenceDate? }`; Member 3 owns real extraction and Member 1 controls the host page. Sample/custom imports use the same callback without hardcoded commitments.
 
-The pure `parseConversation(input): Message[]` function accepts `Sender: message` and the README's ISO-timestamped pipe format, preserving multiple speakers and multiline content. Missing or timezone-ambiguous timestamps remain `null`; a host-provided explicit offset can resolve unzoned ISO timestamps. The optional user-controlled reference date is analysis context, not an invented message timestamp or deadline. The fictional sample supplies its explicitly stated date of 8 October 2026.
+The baseline format parser accepts `Sender: message` and supported ISO-timestamped pipe lines, preserving multiple speakers and multiline content. Unzoned/invalid/missing timestamps stay null unless a known offset is explicitly supplied. Reference date is user-provided context, never an invented timestamp/deadline. The sample carries its explicit date `2026-10-08`.
 
-Pasted text, the fictional sample and UTF-8 `.txt` input use the same editable preview pipeline. Validate file extension, MIME type, size, UTF-8 encoding and nonempty content. Limit files to 5 MiB and conversations to 100,000 characters. Keep text files in the browser; do not persist or log their contents.
+Pasted input and UTF-8 `.txt` files use the editable preview pipeline. Validate supported extensions/MIME, size, encoding and content. Limit uploads to 5 MiB and conversation text to 100,000 characters. Keep text files in the browser; do not persist or log message bodies.
 
-Define an injectable real OCR adapter. Screenshot import is disabled by default and clearly labelled as not connected; it becomes available only when the host supplies OCR. Extracted image text remains editable before submission. PDF and provider-specific chat formats remain out of scope.
+Keep real OCR injectable. Screenshot availability is explicit and disabled without an adapter; returned OCR text remains editable. PDF and provider-specific export formats are optional, not prerequisites for the P0 demo.
 
-## File structure
+## Structure
 
-```text
-docs/conversation/
-  plan.md
-  TODO.md
-  README.md
-src/components/import/
-  ConversationImporter.tsx       # Public UI entry point
-  ConversationTextInput.tsx      # Pasted/OCR text correction
-  ConversationFileUpload.tsx     # Local upload controls
-  ConversationDateInput.tsx      # Explicit optional context
-  SenderSelector.tsx             # Current-user identity
-  MessagePreview.tsx             # Structured messages
-  useConversationImport.ts       # State and adapter handling
-  index.ts
-src/lib/conversation/
-  types.ts                       # Feature-specific contracts
-  parseConversation.ts           # Format parsing, never promise detection
-  validateFile.ts
-  readTextFile.ts
-  ocr.ts                         # Optional real OCR boundary
-  fixtures.ts                    # Fictional inputs, no AI results
-  index.ts
-tests/conversation/
-  check-scaffold.py               # Repeatable isolated checks
-  conversation.test.cjs           # Synthetic library/SSR tests
-```
+| Directory | Responsibility |
+| --- | --- |
+| `src/components/import/` | Importer, text/file/date inputs, sender selector, preview and state hook. |
+| `src/lib/conversation/` | Parser, validation/readers, OCR boundary, module contracts and fictional input. |
+| `tests/conversation/` | Repeatable temporary-workspace compilation and synthetic/SSR tests. |
+| `docs/conversation/` | Guide, this plan, checklist, Member 2 progress and Member 3 handoff. |
 
 ## Interface design
 
-Use restrained productivity-tool styling: a vertically ordered input → preview → identity/date → submit flow, readable body text, indigo primary action, visible error/status text and accessible keyboard controls. Inherit the shared application's typography, spacing and Tailwind configuration; do not define a competing design system, logo, landing page or dashboard. No decorative imagery or animation is needed for this scaffold. Keep microcopy direct, such as “Review conversation text” and “Send messages for analysis.”
+Use a vertically ordered input → preview → identity/date → submit flow, readable copy, indigo primary action, visible error/status text and keyboard-accessible controls. Inherit the shared application's typography/Tailwind system. Do not create a competing landing page, dashboard, branding or design system. No decorative imagery or animation is needed for this module.
 
-## Integration dependency
+## Verification and integration stage
 
-Member 5 must provide the Next.js/React/Tailwind starter and `src/types/openloop.ts`. Until then, the repeatable check uses a temporary shared contract extracted verbatim from `PROJECT_BRIEF.md`, outside the repository, with isolated React/TypeScript dependencies. This does not verify a complete app build, browser workflow or deployment. Real OCR and the extraction callback remain integration work. Commit/push the assigned feature branch and open a draft review PR without merging it.
+Canonical-type module compilation and all 25 synthetic/SSR tests pass. Shared lint, TypeScript checking and the Next.js production build also pass. Initial lint incompatibilities were corrected only in Member 2's JSX/test files.
+
+Build compatibility is not end-to-end acceptance. The importer is not mounted in the app page, the fetched extraction route is absent, and no real OCR is connected. Next, hand Member 3 the exact request/response contract, let Member 1 mount the component, and coordinate AI → storage → dashboard wiring with Members 3/4/5. Verify the real browser/public journey before optional OCR/PDF work. Commit/push the assigned feature branch and update the draft PR; do not merge into `main` from this task.
