@@ -3,6 +3,14 @@
     {
       "path": "/",
       "title": "OpenLoop"
+    },
+    {
+      "path": "/dashboard",
+      "title": "Dashboard"
+    },
+    {
+      "path": "/import",
+      "title": "Add a conversation"
     }
   ]
 }
