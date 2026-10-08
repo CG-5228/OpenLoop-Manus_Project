@@ -102,7 +102,7 @@ export default function LandingPage() {
         </p>
         <div className="mt-9 flex animate-rise flex-col items-center justify-center gap-3 [animation-delay:180ms] sm:flex-row">
           <Button asChild variant="primary" size="lg" className="w-full sm:w-auto">
-            <Link href={ROUTES.import}>
+            <Link href={`${ROUTES.import}?sample=1`}>
               Try sample conversation <ArrowRight />
             </Link>
           </Button>
@@ -225,7 +225,7 @@ export default function LandingPage() {
       <footer className="border-t border-line">
         <div className="mx-auto flex max-w-[1160px] flex-col items-center justify-between gap-4 px-5 py-8 text-[13px] text-ink-3 sm:flex-row sm:px-8">
           <Logo className="opacity-80" />
-          <p className="text-center">Demo uses synthetic conversations. OpenLoop never sends messages automatically.</p>
+          <p className="text-center">This demo uses rule-based extraction in place of AI and saves data in your browser. OpenLoop never sends messages automatically.</p>
           <p>© 2026 OpenLoop</p>
         </div>
       </footer>

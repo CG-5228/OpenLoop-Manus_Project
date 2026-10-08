@@ -212,7 +212,7 @@ function useDemoAdapter(): DashboardDataApi {
       updateDeadline: (id, dueAt) => patch(id, { dueAt }),
       generateFollowUp: async (c) => {
         await wait(700);
-        return demoFollowUpTemplate(c);
+        return { message: demoFollowUpTemplate(c), source: "template" as const };
       },
       confirmSuggestion: (commitmentId) => {
         patch(commitmentId, { status: "completed" });

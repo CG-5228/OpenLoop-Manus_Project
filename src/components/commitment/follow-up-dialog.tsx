@@ -48,6 +48,7 @@ function FollowUpBody({ commitment }: { commitment: Commitment }) {
   const actions = useCommitmentActions();
   const [phase, setPhase] = useState<Phase>("loading");
   const [draft, setDraft] = useState("");
+  const [source, setSource] = useState<"ai" | "template" | null>(null);
   const [attempt, setAttempt] = useState(0);
 
   const requestDraft = useEffectEvent(() => api.generateFollowUp(commitment));
@@ -55,9 +56,10 @@ function FollowUpBody({ commitment }: { commitment: Commitment }) {
   useEffect(() => {
     let cancelled = false;
     requestDraft().then(
-      (text) => {
+      (result) => {
         if (cancelled) return;
-        setDraft(text);
+        setDraft(result.message);
+        setSource(result.source);
         setPhase("ready");
       },
       () => {
@@ -76,10 +78,10 @@ function FollowUpBody({ commitment }: { commitment: Commitment }) {
 
   return (
     <>
-      {api.mode === "demo" && (
+      {phase === "ready" && source === "template" && (
         <p className="mb-3 inline-flex items-center gap-1.5 rounded-md bg-review-bg px-2 py-1 text-xs font-medium text-review-fg">
           <TriangleAlert className="size-3.5" aria-hidden />
-          Demo mode — this draft comes from a template, not AI.
+          Drafted from a template, not AI. Review it before sending.
         </p>
       )}
 

@@ -208,11 +208,9 @@ export function DashboardView() {
                     <Plus /> Add conversation
                   </Link>
                 </Button>
-                {api.resetDemo && (
-                  <Button variant="secondary" onClick={api.resetDemo}>
-                    Load demo data
-                  </Button>
-                )}
+                <Button asChild variant="secondary">
+                  <Link href={`${ROUTES.import}?sample=1`}>Try the sample conversation</Link>
+                </Button>
               </>
             }
           />
