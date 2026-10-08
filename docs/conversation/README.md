@@ -128,3 +128,9 @@ This test page uses the real importer but only displays a payload in browser mem
 Browser checks verified five-message sample submission, two-message custom paste, `.txt` import with Unicode/source preserved, unsupported-PDF rejection and explicit timestamp-offset conversion. The initial mount check exposed `crypto.randomUUID()` in the hook's server prerender; ID initialization was deferred to user input, with a failing-then-passing regression test. Product button/disclosure defaults are unchanged; the playground overrides only their visible copy.
 
 Temporary preview for this task: https://3000-irmxsi7nd463jgidio6kb-2835a6f1.us4.manus.computer/dev/conversation . This is sandbox access, not the team's deployed product URL. Run locally using `npm run dev` and visit `http://localhost:3000/dev/conversation`.
+
+## Quick text entry and output
+
+`/dev/text-parser` mounts `QuickTextParser`. Enter any text, choose **Whole block** or **Labelled chat**, then click **Parse text**. No current-user selection is required. Whole-block mode preserves the entire text exactly, including email headers and paragraphs, as one canonical message; it uses an optional explicitly supplied author or `Unknown sender`. Labelled-chat mode reuses `parseConversation`, preserving all context rather than filtering small talk or uncertainty. Output includes readable messages, canonical `Message[]` JSON, a Copy JSON action and a stale-output notice after edits. Empty input is disabled; the 100,000-character bound remains enforced.
+
+This is **format-only**. It does not infer meaningful commitments, resolve relative deadlines, connect to Gmail or replace Member 3's extraction endpoint. It does not call AI or persist input. The existing `/dev/conversation` importer and host callback are unchanged. Module tests now cover whole-block preservation and initial quick-parser rendering, in addition to the existing parser/upload/OCR-boundary checks.

@@ -1,4 +1,5 @@
 export { ConversationImporter } from "./ConversationImporter";
+export { QuickTextParser } from "./QuickTextParser";
 export { ConversationTextInput } from "./ConversationTextInput";
 export { ConversationFileUpload } from "./ConversationFileUpload";
 export { ConversationDateInput } from "./ConversationDateInput";

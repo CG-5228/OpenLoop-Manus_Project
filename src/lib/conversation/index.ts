@@ -1,4 +1,6 @@
 export { parseConversation, MAX_CONVERSATION_CHARACTERS } from "./parseConversation";
+export { parseTextInput } from "./parseTextInput";
+export type { ParseTextInput, TextInputMode } from "./parseTextInput";
 export { readTextFile } from "./readTextFile";
 export { readScreenshot } from "./ocr";
 export {

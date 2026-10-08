@@ -42,3 +42,7 @@ Add a narrowly scoped `/dev/conversation` test page using the actual Member 2 co
 Expose the current feature branch through a temporary sandbox preview on port 3000, bound to `0.0.0.0`. Verify HTTP access locally/publicly and try synthetic sample, custom text and `.txt` input in the browser before delivery. Treat the playground as a testing utility, not a deployed product or live extraction endpoint.
 
 The playground is now verified using the production build locally and at the temporary public sandbox URL. Real-browser sample/custom/UTF-8 upload/unsupported-file/known-offset checks passed, with no commitment API requests. The mounted page exposed a prerender restriction on initial `crypto.randomUUID()`; defer initial conversation IDs to input events and retain a regression test. This clears the isolated browser-parser test gate only, not product page integration, live AI or real OCR.
+
+## Direct text-to-output interface
+
+Add a reusable quick parser UI at `/dev/text-parser` and use it as the managed deployment copy's homepage. A whole-block mode preserves unstructured email/page text without interpreting headers as people; an explicit `Name: message` mode reuses the existing conversation parser. A known author is optional and never inferred. The Parse text action returns readable `Message[]` plus JSON without current-user gating. Keep the existing advanced importer unchanged, and explicitly state no AI meaningful-promise detection, persistence, OCR or Gmail account connection. Only Member 2 files and the new dev route change on feature/conversation.

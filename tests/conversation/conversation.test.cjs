@@ -203,3 +203,47 @@ test("the playground declares parser-only behaviour and leaves submission empty 
   assert.match(html, /Preview parsed JSON/);
   assert.doesNotMatch(html, /data-testid="parsed-output"/);
 });
+
+test("whole-block input preserves email headers, Unicode and whitespace without guessing speakers", () => {
+  const { parseTextInput } = load("./src/lib/conversation/parseTextInput.js");
+  const text = "  Subject: Budget\r\nFrom: James\r\n\r\nI'll send €20 tomorrow.  ";
+  const messages = parseTextInput({ text, mode: "whole-block" });
+  assert.equal(messages.length, 1);
+  assert.equal(messages[0].text, text);
+  assert.equal(messages[0].sender, "Unknown sender");
+  assert.equal(messages[0].sentAt, null);
+  assert.equal(messages[0].source, "paste");
+});
+
+test("whole-block input supports only an explicitly supplied author and enforces text limits", () => {
+  const { parseTextInput } = load("./src/lib/conversation/parseTextInput.js");
+  assert.equal(parseTextInput({ text: "A plain paragraph", mode: "whole-block", knownAuthor: " James " })[0].sender, "James");
+  assert.deepEqual(parseTextInput({ text: " \n ", mode: "whole-block" }), []);
+  assert.throws(() => parseTextInput({ text: "x".repeat(MAX_CONVERSATION_CHARACTERS + 1), mode: "whole-block" }), hasCode("text_too_long"));
+});
+
+test("labelled mode reuses the existing parser and preserves small talk and uncertainty", () => {
+  const { parseTextInput } = load("./src/lib/conversation/parseTextInput.js");
+  const messages = parseTextInput({ text: "James: Hi!\nMe: I'll send the report.\nSarah: I might review it.", mode: "labelled-chat" });
+  assert.deepEqual(messages.map(m => m.sender), ["James", "Me", "Sarah"]);
+  assert.equal(messages[0].text, "Hi!");
+  assert.equal(messages[2].text, "I might review it.");
+  assert.ok(messages.every(m => m.sentAt === null));
+});
+
+test("quick parser renders whole-block input, optional author and honest output boundaries without random IDs on mount", () => {
+  const { QuickTextParser } = load("./src/components/import/QuickTextParser.js");
+  const original = crypto.randomUUID;
+  crypto.randomUUID = () => { throw new Error("No random IDs on mount"); };
+  try {
+    const html = renderToStaticMarkup(React.createElement(QuickTextParser));
+    assert.match(html, /Enter text\. Inspect the output/);
+    assert.match(html, /Known author \(optional\)/);
+    assert.match(html, /Whole block/);
+    assert.match(html, /not meaningful-promise extraction/);
+    assert.match(html, /Parse text/);
+    assert.doesNotMatch(html, /quick-parsed-output/);
+  } finally {
+    crypto.randomUUID = original;
+  }
+});
