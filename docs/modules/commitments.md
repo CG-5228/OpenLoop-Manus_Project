@@ -55,40 +55,21 @@ Other hooks: `useCommitment(id)` returns `commitment`, `record`, `suggestions`, 
 
 Filter values: `direction` is `all | you_owe | they_owe | unknown`. `status` is `all | open | pending | overdue | needs_review | completed | dismissed`, where `open` means every pending item. `query` matches title, people and evidence (multi-word, case- and punctuation-insensitive).
 
-### Mapping onto Member 1's `DashboardDataApi` (PR #5)
+### Live dashboard wiring (`dashboard-data-provider.tsx`)
 
-Once both PRs are on `main`, add this to `src/components/providers/dashboard-data-provider.tsx` and use it in place of `useDemoAdapter()`. No component changes are needed.
+This PR adds `useLiveAdapter()` to Member 1's provider and makes it the default (`mode: "live"`). No dashboard components changed.
 
-```tsx
-import { useCommitments } from "@/hooks/useCommitments";
-import { requestFollowUp } from "@/lib/ui/api-client";
+| `DashboardDataApi` | Backed by |
+|---|---|
+| `commitments`, `suggestions`, `state`, `error`, `getCommitment`, `getMessage`, `reload` | `useCommitments()` |
+| `addCommitments(list, messages)` | Store `saveCommitments`; shows an "N already tracked" toast when a re-import skips duplicates |
+| `markCompleted` / `restore` / `dismiss` / `updateDeadline` | `updateCommitment(id, { status \| dueAt })` |
+| `confirmSuggestion` / `rejectSuggestion` / `clearAll` | Store `acceptSuggestion` / `rejectSuggestion` / `clearAll` |
+| `generateFollowUp(c)` | Member 1's `requestFollowUp()` → `POST /api/follow-up` |
 
-function useLiveAdapter(): DashboardDataApi {
-  const c = useCommitments();
-  return useMemo<DashboardDataApi>(
-    () => ({
-      mode: "live",
-      state: c.state,
-      error: c.error,
-      commitments: c.commitments,
-      suggestions: c.suggestions,
-      getCommitment: c.getCommitment,
-      getMessage: c.getMessage,
-      reload: c.reload,
-      addCommitments: (list, messages) => void c.addCommitments(list, messages),
-      markCompleted: (id) => void c.updateCommitment(id, { status: "completed" }),
-      restore: (id) => void c.updateCommitment(id, { status: "pending" }),
-      dismiss: (id) => void c.dismissCommitment(id),
-      updateDeadline: (id, dueAt) => void c.updateCommitment(id, { dueAt }),
-      generateFollowUp: (commitment) => requestFollowUp(commitment),
-      confirmSuggestion: (id) => void c.confirmSuggestion(id),
-      rejectSuggestion: (id) => c.rejectSuggestion(id),
-      clearAll: c.clearAll,
-    }),
-    [c],
-  );
-}
-```
+**Failure honesty:** Member 1's action wrappers show their success toast right after the call. So on a failed write the adapter shows a `Couldn't …` error toast and re-throws, which skips the false "Loop closed" toast. `resetDemo` is not provided in live mode, so the empty state hides "Load demo data".
+
+**QA:** any `?demo-state=` parameter (`loading`, `empty`, `error` or `demo`) still selects Member 1's labelled demo adapter. Stored data is never touched in that mode.
 
 ## 3. Feeding data in (Members 2, 3 and 5)
 
@@ -150,6 +131,8 @@ npm run check                                               # lint + typecheck +
 # Dev harness (synthetic data):
 NEXT_PUBLIC_OPENLOOP_DEV_TOOLS=1 npm run build && npm run start   # → /dev/commitments
 ```
+
+End-to-end check (sandbox, live AI): Member 2's parser on the sample conversation → Member 3's `/api/commitments/extract` (4 commitments; "I might…" correctly skipped) → this store (4 added, 0 rejected). A **real re-import** with new message ids and a fresh AI call gave 0 added and 4 duplicates. In the real `/dashboard`: complete via the card checkbox ("Loop closed" with Undo, counts 4 → 3) → AI follow-up in Member 1's dialog → refresh, and the state persisted.
 
 The tests use `node:test` with a tiny local `expect` adapter (`__tests__/expect.ts`), so `npm run typecheck` covers them without adding `vitest`. They cover deadlines and overdue logic, persistence and corruption recovery, duplicates, `updateCommitment` status patches, cited-message storage, suggestions, stats and filters, follow-up validation and generation (with a mocked provider), and the route's status codes.
 
