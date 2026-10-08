@@ -153,7 +153,9 @@ export interface DueInfo {
 }
 
 function hasTime(d: Date) {
-  return !(d.getHours() === 0 && d.getMinutes() === 0);
+  // Midnight and 23:59 (Module D's end-of-day form for date-only deadlines) mean "no time given".
+  if (d.getHours() === 0 && d.getMinutes() === 0) return false;
+  return !(d.getHours() === 23 && d.getMinutes() === 59);
 }
 
 export function formatDue(c: Commitment, now: Date): DueInfo {
